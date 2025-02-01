@@ -48,11 +48,11 @@ function TwoColumnForm() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col md:flex-row p-4 md:p-8">
+    <div className="min-h-screen bg-white flex flex-col md:flex-row p-4 md:p-8">
       {/* Left Side - Form */}
       <div
-        className={`bg-gray-900 text-white p-4 md:p-6 rounded-lg shadow-lg transition-all duration-500 ease-in-out ${
-          isOpen ? "w-full md:w-2/5" : "w-full md:w-[75px]"
+        className={`bg-white text-grey-700 p-4 md:p-6 pt-6 mt-16 ml-32 rounded-lg shadow-lg transition-all duration-500 ease-in-out ${
+          isOpen ? "w-full md:w-1/3" : "w-full md:w-[75px]"
         }`}
       >
         <div className="flex justify-between items-center mb-4">
@@ -79,7 +79,7 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Company Name"
-                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                className="w-full p-2 bg- border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
@@ -93,7 +93,7 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Product Name"
-                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
@@ -107,7 +107,7 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Target Audience"
-                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
@@ -122,7 +122,7 @@ function TwoColumnForm() {
                   {...field}
                   type="text"
                   placeholder="Campaign Goal"
-                  className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                  className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                   required
                 />
               </Tooltip>
@@ -135,7 +135,7 @@ function TwoColumnForm() {
             render={({ field }) => (
               <select
                 {...field}
-                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
+                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
               >
                 <option value="Professional">Professional</option>
                 <option value="Friendly">Friendly</option>
@@ -153,7 +153,7 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Call to Action Link"
-                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
@@ -168,7 +168,7 @@ function TwoColumnForm() {
                 selected={field.value}
                 onChange={(date) => field.onChange(date)}
                 placeholderText="Select Campaign Date"
-                className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
+                className="w-full p-2 bg-white text-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
               />
             )}
           />
@@ -181,7 +181,7 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="City"
-                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
@@ -193,7 +193,7 @@ function TwoColumnForm() {
             render={({ field }) => (
               <select
                 {...field}
-                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
+                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
               >
                 <option value="Billboard in a city">Billboard in a city</option>
                 <option value="Social media post">Social media post</option>
@@ -212,7 +212,7 @@ function TwoColumnForm() {
                 <textarea
                   {...field}
                   placeholder="Enter custom prompt details"
-                  className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                  className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 ></textarea>
               )}
             />
@@ -227,7 +227,7 @@ function TwoColumnForm() {
       </div>
 
       {/* Right Side - A/B Test Results */}
-      <div className="flex-1 mt-6 md:mt-0 md:ml-6">
+      <div className="flex-1 mt-6 md:mt-0 bg-white md:ml-6">
         {isLoading && (
           <div className="flex justify-center items-center h-full">
             <span className="text-xl text-neutral-200 font-semibold">

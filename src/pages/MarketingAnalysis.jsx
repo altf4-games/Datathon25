@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -8,149 +8,175 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  CartesianGrid,
   Legend,
   ResponsiveContainer,
-  CartesianGrid,
 } from "recharts";
 
-const COLORS = [
-  "#34d399",
-  "#3b82f6",
-  "#fbbf24",
-  "#fb7185",
-  "#8b5cf6",
-  "#fca5a1",
-  "#eab308",
+const COLORS = ["#34d399", "#3b82f6", "#fbbf24", "#fb7185", "#8b5cf6", "#fca5a1", "#eab308"];
+
+// Dummy data to simulate posts
+const dummyPosts = [
+  {
+    uri: "1",
+    text: "Excited to announce our new product launch!",
+    likeCount: 2400,
+    repostCount: 400,
+    replies: [
+      { text: "This is amazing!", sentiment: [{ label: "positive" }] },
+      { text: "Can't wait to try it", sentiment: [{ label: "positive" }] },
+      { text: "Interesting approach", sentiment: [{ label: "neutral" }] },
+    ]
+  },
+  {
+    uri: "2",
+    text: "Check out our latest feature update",
+    likeCount: 1398,
+    repostCount: 300,
+    replies: [
+      { text: "Not what I expected", sentiment: [{ label: "negative" }] },
+      { text: "Great improvement!", sentiment: [{ label: "positive" }] },
+    ]
+  },
+  {
+    uri: "3",
+    text: "Share your thoughts on our new design",
+    likeCount: 9800,
+    repostCount: 2100,
+    replies: [
+      { text: "Love the new look!", sentiment: [{ label: "positive" }] },
+      { text: "Could use some work", sentiment: [{ label: "neutral" }] },
+      { text: "Not a fan", sentiment: [{ label: "negative" }] },
+    ]
+  }
 ];
 
-const RecentPostsAnalytics = () => {
-  const [posts, setPosts] = useState([]);
-  const [sentimentData, setSentimentData] = useState([]);
-  const [loading, setLoading] = useState(true);
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white border border-gray-200 p-2 rounded-lg shadow-lg">
+        <p className="font-semibold">{label}</p>
+        {payload.map((entry, index) => (
+          <p key={index} style={{ color: entry.color }}>
+            {`${entry.name}: ${entry.value}`}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
-  // Fetch recent posts and aggregate sentiment on mount.
-  useEffect(() => {
-    fetch("http://localhost:3000/recent-posts")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setPosts(data.posts);
+const EnhancedAnalyticsDashboard = () => {
+  const [posts] = useState(dummyPosts);
 
-          // Aggregate sentiment counts from all replies
-          const sentimentCounts = {};
-          data.posts.forEach((post) => {
-            (post.replies || []).forEach((reply) => {
-              // Assume each reply.sentiment is an array; use the first label.
-              const sentimentLabel = reply.sentiment?.[0]?.label || "unknown";
-              sentimentCounts[sentimentLabel] =
-                (sentimentCounts[sentimentLabel] || 0) + 1;
-            });
-          });
-          const sentimentArray = Object.entries(sentimentCounts).map(
-            ([label, count]) => ({ label, count })
-          );
-          setSentimentData(sentimentArray);
-        }
-      })
-      .catch((err) => {
-        console.error("Error fetching recent posts:", err);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  // Calculate sentiment data
+  const sentimentData = posts.reduce((acc, post) => {
+    post.replies.forEach(reply => {
+      const sentiment = reply.sentiment[0].label;
+      acc[sentiment] = (acc[sentiment] || 0) + 1;
+    });
+    return acc;
+  }, {});
 
-  if (loading) return <div>Loading recent posts...</div>;
+  const sentimentChartData = Object.entries(sentimentData).map(([label, count]) => ({
+    label,
+    count
+  }));
 
   return (
-    <div className="p-8">
-      <h2 className="text-3xl font-bold mb-6">Recent Posts Analytics</h2>
+    <div className="p-10 mt-16 min-h-screen bg-gradient-to-b to-white via-white from-white text-black" align="center">
+      <h2 className="text-4xl  font-bold text-center text-teal-400 mb-8">Posts Analytics Dashboard</h2>
 
-      {/* Display a bar chart for post statistics */}
-      <div className="mb-12">
-        <h3 className="text-2xl font-semibold mb-4">
-          Post Stats (Likes, Reposts, Replies)
-        </h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart
-            data={posts.map((post, index) => ({
-              name: `Post ${index + 1}`,
-              likes: post.likeCount || 0,
-              reposts: post.repostCount || 0,
-              replies: (post.replies && post.replies.length) || 0,
-            }))}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="name" stroke="#374151" />
-            <YAxis stroke="#374151" />
-            <Tooltip contentStyle={{ backgroundColor: "#ffffff" }} />
-            <Legend />
-            <Bar dataKey="likes" fill="#3b82f6" name="Likes" />
-            <Bar dataKey="reposts" fill="#fbbf24" name="Reposts" />
-            <Bar dataKey="replies" fill="#fb7185" name="Replies" />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="grid lg:grid-cols-2 gap-6 mb-8">
+        {/* Engagement Stats */}
+        <div className="bg-white p-6 pl-8 ml-16 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
+          <h3 className="text-xl font-semibold text-blue-400 mb-4">Post Engagement Metrics</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={posts.map((post, index) => ({
+                name: `Post ${index + 1}`,
+                likes: post.likeCount,
+                reposts: post.repostCount,
+                replies: post.replies.length,
+              }))}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+              <XAxis dataKey="name" stroke="#555" />
+              <YAxis stroke="#555" />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend />
+              <Bar dataKey="likes" fill="#3b82f6" name="Likes" />
+              <Bar dataKey="reposts" fill="#fbbf24" name="Reposts" />
+              <Bar dataKey="replies" fill="#fb7185" name="Replies" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Sentiment Analysis */}
+        <div className="bg-white p-6 ml-16 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
+          <h3 className="text-xl font-semibold text-pink-400 mb-4">Sentiment Distribution</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={sentimentChartData}
+                dataKey="count"
+                nameKey="label"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                label={({ label, count }) => `${label} (${count})`}
+                labelLine={true}
+              >
+                {sentimentChartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
-      {/* Display aggregated sentiment analysis in a Pie Chart */}
-      {/* <div className="mb-12">
-        <h3 className="text-2xl font-semibold mb-4">Aggregated Sentiment</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={sentimentData}
-              dataKey="count"
-              nameKey="label"
-              cx="50%"
-              cy="50%"
-              outerRadius={80}
-              label={({ label, count }) => `${label} (${count})`}
-              animationDuration={800}
-              animationEasing="ease-in-out"
-            >
-              {sentimentData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </div> */}
-
-      {/* List out each post and its replies with sentiment */}
-      <div>
-        <h3 className="text-2xl font-semibold mb-4">Posts Details</h3>
-        {posts.map((post, idx) => (
-          <div key={post.uri} className="mb-6 p-4 border border-gray-300 rounded">
-            <h4 className="text-xl font-bold mb-2">Post {idx + 1}</h4>
-            <p className="mb-2">
-              <span className="font-semibold">Text:</span> {post.text}
-            </p>
-            <p className="mb-2">
-              <span className="font-semibold">Likes:</span> {post.likeCount || 0} |{" "}
-              <span className="font-semibold">Reposts:</span> {post.repostCount || 0} |{" "}
-              <span className="font-semibold">Replies:</span>{" "}
-              {(post.replies && post.replies.length) || 0}
-            </p>
-            {post.replies && post.replies.length > 0 && (
-              <div className="ml-4">
-                <h5 className="font-semibold mb-1">Replies:</h5>
-                <ul>
-                  {post.replies.map((reply, i) => (
-                    <li key={i} className="mb-1">
-                      <span className="italic">"{reply.text}"</span> — Sentiment:{" "}
-                      <span className="font-semibold">
-                        {reply.sentiment?.[0]?.label || "unknown"}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+      {/* Detailed Posts List */}
+      <div className="bg-white p-6 ml-16 rounded-lg shadow-lg transition hover:shadow-xl transform duration-300">
+        <h3 className="text-2xl font-semibold text-teal-400 mb-6">Detailed Post Analysis</h3>
+        <div className="space-y-6">
+          {posts.map((post, idx) => (
+            <div key={post.uri} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition duration-300">
+              <h4 className="text-xl font-bold text-gray-800 mb-2">Post {idx + 1}</h4>
+              <p className="mb-3 text-gray-600">{post.text}</p>
+              <div className="flex gap-4 mb-3 text-sm">
+                <span className="text-blue-500">👍 {post.likeCount} likes</span>
+                <span className="text-yellow-500">🔄 {post.repostCount} reposts</span>
+                <span className="text-pink-500">💬 {post.replies.length} replies</span>
               </div>
-            )}
-          </div>
-        ))}
+              {post.replies.length > 0 && (
+                <div className="ml-4 border-l-2 border-gray-200 pl-4">
+                  <h5 className="font-semibold text-gray-700 mb-2">Replies:</h5>
+                  <div className="space-y-2">
+                    {post.replies.map((reply, i) => (
+                      <div key={i} className="bg-gray-50 p-2 rounded">
+                        <p className="text-gray-600 italic">"{reply.text}"</p>
+                        <span className={`text-sm font-medium ${
+                          reply.sentiment[0].label === 'positive' ? 'text-green-500' :
+                          reply.sentiment[0].label === 'negative' ? 'text-red-500' :
+                          'text-yellow-500'
+                        }`}>
+                          Sentiment: {reply.sentiment[0].label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 };
 
-export default RecentPostsAnalytics;
+export default EnhancedAnalyticsDashboard;
