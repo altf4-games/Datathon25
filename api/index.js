@@ -128,13 +128,24 @@ async function SendPost(txt, image, isBase64 = false) {
       };
     } else {
       // If you already have a URL from Fal AI, attach it as an external embed.
+      const response = await fetch(image);
+      if (!response.ok) {
+        throw new Error("Failed to fetch image from URL");
+      }
+      imageBuffer = await response.buffer();
+      const uploadResponse = await agent.uploadBlob(imageBuffer, {
+        encoding: "image/jpeg",
+      });
+
       embedData = {
-        $type: "app.bsky.embed.external",
-        external: {
-          uri: image,
-          title: "Marketing Campaign Image",
-          description: "AI-generated campaign image",
-        },
+        $type: "app.bsky.embed.images",
+        images: [
+          {
+            alt: "Generated Image",
+            image: uploadResponse.data.blob,
+            aspectRatio: { width: 1000, height: 500 },
+          },
+        ],
       };
     }
 
