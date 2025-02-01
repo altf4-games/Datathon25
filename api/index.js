@@ -374,17 +374,10 @@ bot.onText(/\/start/, (msg) => {
 bot.onText(/\/generate_campaign (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const params = match[1].split(",");
-  const [
-    product,
-    targetAudience,
-    maxBudget,
-    userPrompt,
-    companyName,
-    callToActionLink,
-    city,
-  ] = params.map((param) => param.trim());
+  const [product, targetAudience, maxBudget, userPrompt, companyName, callToActionLink, city] = params;
 
   try {
+    // 1. Generate the campaign
     const campaignDetails = await generateCampaign({
       product,
       targetAudience,
@@ -395,9 +388,13 @@ bot.onText(/\/generate_campaign (.+)/, async (msg, match) => {
       city,
     });
 
+    // 2. Post to BlueSky (use imageUrl or buffer depending on your implementation)
+    await SendPost(campaignDetails.text, campaignDetails.imageUrl, false);
+
+    // 3. Respond in Telegram
     bot.sendMessage(
       chatId,
-      `Campaign generated successfully!\n\nText: ${campaignDetails.text}\nImage: ${campaignDetails.imageUrl}`
+      `Campaign posted to BlueSky!\n\nText: ${campaignDetails.text}`
     );
   } catch (error) {
     console.error("Error generating campaign:", error);
