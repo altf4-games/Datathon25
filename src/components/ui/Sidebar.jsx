@@ -36,24 +36,24 @@ function Sidebar() {
   };
 
   return (
-    <div className={`flex flex-col fixed z-40 h-screen bg-gray-900 text-white transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'} p-4 shadow-lg`}>
+    <div className={`flex flex-col fixed z-40 h-screen bg-white text-white transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'} p-4 shadow-lg`}>
       <button 
         onClick={toggleSidebar} 
-        className="text-teal-400 mb-4 focus:outline-none hover:bg-gray-700 rounded p-2 transition duration-300"
+        className="text-teal-400 mb-4 focus:outline-none hover:bg-gray-700 rounded w-10 p-2 transition duration-300"
         aria-label="Toggle sidebar"
       >
-        {isCollapsed ? '☰' : '✖️'}
+        {isCollapsed ? '☰' : '❎'}
       </button>
 
       {!isCollapsed && (
         <div className="flex items-center mb-6">
-          <h1 className="text-xl font-bold text-teal-400">Marketing</h1>
-          <span className="text-xl font-bold text-teal-400 ml-1">Platform</span>
+          {/* <h1 className="text-xl font-bold text-teal-900">Marketing</h1>
+          <span className="text-xl font-bold text-teal-900 ml-1">Platform</span> */}
         </div>
       )}
 
       <nav className="flex-grow">
-        <ul className="space-y-4">
+        <ul className="space-y-4 text-gray-700">
           {[
             { name: 'Dashboard', icon: <FaTachometerAlt className="w-5 h-5" />, route: '/dashboard' },
             { name: 'Analytics', icon: <FaChartLine className="w-5 h-5" />, route: '/analytics' },
@@ -63,7 +63,7 @@ function Sidebar() {
             <li 
               key={index} 
               onClick={() => handleNavigation(item.route)}
-              className={`flex items-center space-x-2 rounded-lg p-2 hover:cursor-pointer transition duration-300 transform hover:scale-105 ${isCollapsed ? 'justify-center' : 'justify-start'} hover:bg-gray-700`}
+              className={`flex items-center space-x-2 rounded-lg p-2 hover:cursor-pointer transition duration-300 transform hover:scale-105 ${isCollapsed ? 'justify-center' : 'justify-start'} hover:bg-gray-200`}
             >
               {item.icon}
               {!isCollapsed && (
@@ -102,7 +102,7 @@ function Sidebar() {
             </button>
             <button
               onClick={handleAnonymousLogin}
-              className="bg-gray-500 text-white flex items-center justify-center gap-4 px-4 py-2 rounded-full w-full transition hover:bg-gray-600"
+              className="bg-gray-500 text-black flex items-center justify-center gap-4 px-4 py-2 rounded-full w-full transition hover:bg-gray-600"
             >
               <FaUserSecret size={25} color="black"/> Sign in Anonymously
             </button>

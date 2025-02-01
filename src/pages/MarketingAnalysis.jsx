@@ -41,34 +41,34 @@ const CustomTooltip = ({ active, payload }) => {
 
 const MarketingAnalytics = () => {
   return (
-    <div className="p-8 ml-32 min-h-screen w-[90vw] bg-gradient-to-b to-gray-900 via-gray-900 from-gray-800 text-white mt-16"> {/* Added mt-16 */}
-      <h2 className="text-4xl font-bold text-center text-teal-400 mb-8">Marketing Analytics</h2>
+    <div className="p-8 ml-32 min-h-screen w-[90vw] bg-gray-50 text-gray-900 mt-16">
+      <h2 className="text-4xl font-bold text-center text-blue-600 mb-8">Marketing Analytics</h2>
       
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Line Chart */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
-          <h3 className="text-xl font-semibold text-teal-400 mb-4">Conversion Rate Over Time</h3>
+        <div className="bg-white p-6 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
+          <h3 className="text-xl font-semibold text-blue-600 mb-4">Conversion Rate Over Time</h3>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={sampleData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-              <XAxis dataKey="name" stroke="#ddd" />
-              <YAxis stroke="#ddd" />
-              <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="name" stroke="#374151" />
+              <YAxis stroke="#374151" />
+              <Tooltip contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }} />
               <Legend />
-              <Line type="monotone" dataKey="rate" stroke="#34d399" activeDot={{ r: 8 }} />
+              <Line type="monotone" dataKey="rate" stroke="#3b82f6" activeDot={{ r: 8 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         {/* Bar Chart */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
-          <h3 className="text-xl font-semibold text-blue-400 mb-4">Clicks & Conversions</h3>
+        <div className="bg-white p-6 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
+          <h3 className="text-xl font-semibold text-blue-600 mb-4">Clicks & Conversions</h3>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={sampleData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-              <XAxis dataKey="name" stroke="#ddd" />
-              <YAxis stroke="#ddd" />
-              <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="name" stroke="#374151" />
+              <YAxis stroke="#374151" />
+              <Tooltip contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }} />
               <Legend />
               <Bar dataKey="clicks" fill="#3b82f6" />
               <Bar dataKey="conversions" fill="#fbbf24" />
@@ -77,8 +77,8 @@ const MarketingAnalytics = () => {
         </div>
 
         {/* Improved Pie Chart */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
-          <h3 className="text-xl font-semibold text-pink-400 mb-4">Click-Through Rates by Month</h3>
+        <div className="bg-white p-6 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
+          <h3 className="text-xl font-semibold text-pink-600 mb-4">Click-Through Rates by Month</h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Tooltip content={<CustomTooltip />} />
@@ -90,7 +90,7 @@ const MarketingAnalytics = () => {
                 cy="50%"
                 outerRadius={80}
                 fill="#34d399"
-                label={({ name, value }) => `${name} (${value})`} // Corrected here
+                label={({ name, value }) => `${name} (${value})`}
                 animationDuration={800}
                 animationEasing="ease-in-out"
               >
@@ -104,10 +104,10 @@ const MarketingAnalytics = () => {
       </div>
 
       {/* Table of Metrics */}
-      <div className="mt-10 bg-gray-800 p-8 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
-        <h3 className="text-2xl font-semibold text-teal-400 mb-4">Detailed Performance Data</h3>
+      <div className="mt-10 bg-white p-8 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
+        <h3 className="text-2xl font-semibold text-blue-600 mb-4">Detailed Performance Data</h3>
         <table className="w-full text-left">
-          <thead className="text-teal-400 border-b border-gray-600">
+          <thead className="text-blue-600 border-b border-gray-200">
             <tr>
               <th className="px-4 py-2">Month</th>
               <th className="px-4 py-2">Clicks</th>
@@ -119,7 +119,7 @@ const MarketingAnalytics = () => {
             {sampleData.map((row, index) => (
               <tr
                 key={index}
-                className="border-b border-gray-700 hover:bg-gray-700 transition duration-300"
+                className="border-b border-gray-200 hover:bg-gray-100 transition duration-300"
               >
                 <td className="px-4 py-2">{row.name}</td>
                 <td className="px-4 py-2">{row.clicks}</td>

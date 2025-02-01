@@ -1,10 +1,10 @@
 import React from 'react';
 import Dashboardfinal from './pages/Dashboardfinal';
-import Navbar from './components/Navbar';
+import Navbar from './components/ui/Navbar';
 import LandingPage from './pages/LandingPage';
 import ContactUs from './pages/ContactUs';
-import Footer from './components/Footer';
-import Sidebar from './components/Sidebar';
+import Footer from './components/ui/Footer';
+import Sidebar from './components/ui/Sidebar';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Pricing from './pages/Pricing';
@@ -19,15 +19,17 @@ function App() {
       <Router>
         <div className="flex">
           <Sidebar /> 
-          <div className="flex-grow bg-gradient-to-b from-gray-900 to-gray-800 text-white min-h-screen">
+          <div className="flex-grow bg-white text-gray-900 min-h-screen">
             <Navbar />
             
             <Routes>
               <Route path="/" element={<>
+                <div className="ml-7">
                   <LandingPage />
                   <div id="features"><Features /></div>
                   <div id="pricing"><Pricing /></div>
                   <div id="contact-us"><ContactUs /></div>
+                </div>
               </>} />
               <Route path="/dashboard" element={<Dashboardfinal />} />
               <Route path="/analytics" element={<MarketingAnalysis />} />
