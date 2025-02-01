@@ -8,12 +8,28 @@ const sharp = require("sharp");
 const { HfInference } = require("@huggingface/inference");
 const { BskyAgent } = require("@atproto/api");
 const TelegramBot = require("node-telegram-bot-api");
+const fs = require("fs");
+const path = require("path");
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+const RECENT_POSTS_FILE = path.join(__dirname, "recentPosts.txt");
+
+// Load recent posts from file if it exists
+let recentPosts = [];
+if (fs.existsSync(RECENT_POSTS_FILE)) {
+  try {
+    const data = fs.readFileSync(RECENT_POSTS_FILE, "utf8");
+    recentPosts = JSON.parse(data);
+  } catch (error) {
+    console.error("Error parsing recent posts file:", error);
+    recentPosts = [];
+  }
+}
 
 const client = new HfInference(process.env.HF);
 const agent = new BskyAgent({ service: "https://bsky.social" });
@@ -100,6 +116,22 @@ function getBestCampaignTime() {
     : "Tomorrow Morning";
 }
 
+/**
+ * Save recent posts array to file.
+ */
+function saveRecentPosts() {
+  try {
+    fs.writeFileSync(RECENT_POSTS_FILE, JSON.stringify(recentPosts, null, 2));
+  } catch (error) {
+    console.error("Error saving recent posts to file:", error);
+  }
+}
+
+/**
+ * SendPost creates a BlueSky post. It converts the image (either a base64 string or URL)
+ * into a buffer and uploads it via agent.uploadBlob. After posting, it stores the post URI
+ * in the recentPosts array (only keeping the most recent 2) and saves the data to a file.
+ */
 async function SendPost(txt, image, isBase64 = false) {
   try {
     await agent.login({
@@ -108,56 +140,51 @@ async function SendPost(txt, image, isBase64 = false) {
     });
 
     let embedData;
+    let imageBuffer;
 
     if (isBase64) {
-      // Convert base64 to a buffer.
-      const imageBuffer = Buffer.from(image, "base64");
-      // Upload the blob to BlueSky.
-      const uploadResponse = await agent.uploadBlob(imageBuffer, {
-        encoding: "image/jpeg",
-      });
-      // The uploadResponse contains a blob reference that we can use.
-      embedData = {
-        $type: "app.bsky.embed.images",
-        images: [
-          {
-            alt: "Generated Image",
-            image: uploadResponse.data.blob, // blob ref returned by the uploadBlob call
-            aspectRatio: { width: 1000, height: 500 },
-          },
-        ],
-      };
+      imageBuffer = Buffer.from(image, "base64");
     } else {
-      // If you already have a URL from Fal AI, attach it as an external embed.
       const response = await fetch(image);
       if (!response.ok) {
         throw new Error("Failed to fetch image from URL");
       }
       imageBuffer = await response.buffer();
-      const uploadResponse = await agent.uploadBlob(imageBuffer, {
-        encoding: "image/jpeg",
-      });
-
-      embedData = {
-        $type: "app.bsky.embed.images",
-        images: [
-          {
-            alt: "Generated Image",
-            image: uploadResponse.data.blob,
-            aspectRatio: { width: 1000, height: 500 },
-          },
-        ],
-      };
     }
+
+    const uploadResponse = await agent.uploadBlob(imageBuffer, {
+      encoding: "image/jpeg",
+    });
+
+    embedData = {
+      $type: "app.bsky.embed.images",
+      images: [
+        {
+          alt: "Generated Image",
+          image: uploadResponse.data.blob,
+          aspectRatio: { width: 1000, height: 500 },
+        },
+      ],
+    };
 
     const post = await agent.post({
       text: txt,
       embed: embedData,
       createdAt: new Date().toISOString(),
     });
-    //console.log("Post Created:", post);
+
+    // Store the post URI. Keep only the two most recent posts.
+    recentPosts.unshift({ uri: post.uri });
+    if (recentPosts.length > 2) {
+      recentPosts = recentPosts.slice(0, 2);
+    }
+    // Save the updated posts array to file.
+    saveRecentPosts();
+
+    return post;
   } catch (error) {
     console.error("Error posting to BlueSky:", error);
+    throw error;
   }
 }
 
@@ -287,10 +314,64 @@ app.post("/generate-campaign-hf", async (req, res) => {
   }
 });
 
+// NEW ENDPOINT: Retrieve the most recent 2 posts with replies and sentiment analysis on each reply.
+app.get("/recent-posts", async (req, res) => {
+  try {
+    const postsData = [];
+    await agent.login({
+      identifier: process.env.BSKY_USERNAME,
+      password: process.env.BSKY_PASSWORD,
+    });
+
+    console.log(recentPosts);
+
+    // Loop through each stored post
+    for (const storedPost of recentPosts) {
+      // Retrieve the complete thread for the post.
+      const threadResponse = await agent.getPostThread({ uri: storedPost.uri });
+      const thread = threadResponse.data.thread;
+      // Assume the main post is available as thread.post
+      const { text, likeCount, repostCount } = thread.post;
+
+      // Process replies: for each reply, run sentiment analysis.
+      const repliesWithSentiment = [];
+      for (const reply of thread.replies || []) {
+        const replyText = reply.text;
+        const classification = await client.textClassification({
+          model: "nlptown/bert-base-multilingual-uncased-sentiment",
+          inputs: replyText,
+          provider: "hf-inference",
+        });
+        console.log(
+          "Classification result for reply:",
+          replyText,
+          classification
+        );
+        repliesWithSentiment.push({
+          text: replyText,
+          sentiment: classification,
+        });
+      }
+
+      postsData.push({
+        uri: storedPost.uri,
+        text,
+        likeCount,
+        repostCount,
+        replies: repliesWithSentiment,
+      });
+    }
+
+    res.json({ success: true, posts: postsData });
+  } catch (error) {
+    console.error("Error retrieving recent posts:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
 // Initialize Telegram Bot
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 
-// Handle Telegram bot commands
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(msg.chat.id, "Welcome to the Marketing Campaign Bot!");
 });
@@ -298,7 +379,16 @@ bot.onText(/\/start/, (msg) => {
 bot.onText(/\/generate_campaign (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const params = match[1].split(",");
-  const [product, targetAudience, campaignGoal, tone, companyName, callToActionLink, promptTemplate, city] = params;
+  const [
+    product,
+    targetAudience,
+    campaignGoal,
+    tone,
+    companyName,
+    callToActionLink,
+    promptTemplate,
+    city,
+  ] = params;
 
   try {
     const campaignDetails = await generateCampaign({
@@ -312,7 +402,10 @@ bot.onText(/\/generate_campaign (.+)/, async (msg, match) => {
       city,
     });
 
-    bot.sendMessage(chatId, `Campaign generated successfully!\n\nText: ${campaignDetails.text}\nImage: ${campaignDetails.imageUrl}`);
+    bot.sendMessage(
+      chatId,
+      `Campaign generated successfully!\n\nText: ${campaignDetails.text}\nImage: ${campaignDetails.imageUrl}`
+    );
   } catch (error) {
     console.error("Error generating campaign:", error);
     bot.sendMessage(chatId, "Error generating campaign. Please try again.");

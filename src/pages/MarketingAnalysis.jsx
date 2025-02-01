@@ -1,7 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   PieChart,
@@ -10,128 +8,149 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
   Legend,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 
-const sampleData = [
-  { name: "Jan", clicks: 2400, conversions: 400, rate: 1.5 },
-  { name: "Feb", clicks: 1398, conversions: 300, rate: 2.5 },
-  { name: "Mar", clicks: 9800, conversions: 2100, rate: 3.1 },
-  { name: "Apr", clicks: 3908, conversions: 1000, rate: 1.8 },
-  { name: "May", clicks: 4800, conversions: 1300, rate: 2.1 },
-  { name: "Jun", clicks: 3800, conversions: 1100, rate: 2.4 },
-  { name: "Jul", clicks: 4300, conversions: 1500, rate: 2.7 },
+const COLORS = [
+  "#34d399",
+  "#3b82f6",
+  "#fbbf24",
+  "#fb7185",
+  "#8b5cf6",
+  "#fca5a1",
+  "#eab308",
 ];
 
-const COLORS = ["#34d399", "#3b82f6", "#fbbf24", "#fb7185", "#8b5cf6", "#fca5a1", "#eab308"];
+const RecentPostsAnalytics = () => {
+  const [posts, setPosts] = useState([]);
+  const [sentimentData, setSentimentData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const CustomTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-gray-800 border border-teal-400 p-2 rounded-lg">
-        <p className="text-teal-400">{`${payload[0].name}: ${payload[0].value}`}</p>
-      </div>
-    );
-  }
+  // Fetch recent posts and aggregate sentiment on mount.
+  useEffect(() => {
+    fetch("http://localhost:3000/recent-posts")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setPosts(data.posts);
 
-  return null;
-};
+          // Aggregate sentiment counts from all replies
+          const sentimentCounts = {};
+          data.posts.forEach((post) => {
+            (post.replies || []).forEach((reply) => {
+              // Assume each reply.sentiment is an array; use the first label.
+              const sentimentLabel = reply.sentiment?.[0]?.label || "unknown";
+              sentimentCounts[sentimentLabel] =
+                (sentimentCounts[sentimentLabel] || 0) + 1;
+            });
+          });
+          const sentimentArray = Object.entries(sentimentCounts).map(
+            ([label, count]) => ({ label, count })
+          );
+          setSentimentData(sentimentArray);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching recent posts:", err);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
-const MarketingAnalytics = () => {
+  if (loading) return <div>Loading recent posts...</div>;
+
   return (
-    <div className="p-8 ml-32 min-h-screen w-[90vw] bg-gray-50 text-gray-900 mt-16">
-      <h2 className="text-4xl font-bold text-center text-blue-600 mb-8">Marketing Analytics</h2>
-      
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Line Chart */}
-        <div className="bg-white p-6 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
-          <h3 className="text-xl font-semibold text-blue-600 mb-4">Conversion Rate Over Time</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={sampleData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="name" stroke="#374151" />
-              <YAxis stroke="#374151" />
-              <Tooltip contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }} />
-              <Legend />
-              <Line type="monotone" dataKey="rate" stroke="#3b82f6" activeDot={{ r: 8 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+    <div className="p-8">
+      <h2 className="text-3xl font-bold mb-6">Recent Posts Analytics</h2>
 
-        {/* Bar Chart */}
-        <div className="bg-white p-6 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
-          <h3 className="text-xl font-semibold text-blue-600 mb-4">Clicks & Conversions</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={sampleData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="name" stroke="#374151" />
-              <YAxis stroke="#374151" />
-              <Tooltip contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }} />
-              <Legend />
-              <Bar dataKey="clicks" fill="#3b82f6" />
-              <Bar dataKey="conversions" fill="#fbbf24" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Improved Pie Chart */}
-        <div className="bg-white p-6 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
-          <h3 className="text-xl font-semibold text-pink-600 mb-4">Click-Through Rates by Month</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Tooltip content={<CustomTooltip />} />
-              <Pie
-                data={sampleData}
-                dataKey="rate"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                fill="#34d399"
-                label={({ name, value }) => `${name} (${value})`}
-                animationDuration={800}
-                animationEasing="ease-in-out"
-              >
-                {sampleData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+      {/* Display a bar chart for post statistics */}
+      <div className="mb-12">
+        <h3 className="text-2xl font-semibold mb-4">
+          Post Stats (Likes, Reposts, Replies)
+        </h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart
+            data={posts.map((post, index) => ({
+              name: `Post ${index + 1}`,
+              likes: post.likeCount || 0,
+              reposts: post.repostCount || 0,
+              replies: (post.replies && post.replies.length) || 0,
+            }))}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="name" stroke="#374151" />
+            <YAxis stroke="#374151" />
+            <Tooltip contentStyle={{ backgroundColor: "#ffffff" }} />
+            <Legend />
+            <Bar dataKey="likes" fill="#3b82f6" name="Likes" />
+            <Bar dataKey="reposts" fill="#fbbf24" name="Reposts" />
+            <Bar dataKey="replies" fill="#fb7185" name="Replies" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
-      {/* Table of Metrics */}
-      <div className="mt-10 bg-white p-8 rounded-lg shadow-lg transition hover:shadow-xl hover:scale-105 transform duration-300">
-        <h3 className="text-2xl font-semibold text-blue-600 mb-4">Detailed Performance Data</h3>
-        <table className="w-full text-left">
-          <thead className="text-blue-600 border-b border-gray-200">
-            <tr>
-              <th className="px-4 py-2">Month</th>
-              <th className="px-4 py-2">Clicks</th>
-              <th className="px-4 py-2">Conversions</th>
-              <th className="px-4 py-2">Conversion Rate (%)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sampleData.map((row, index) => (
-              <tr
-                key={index}
-                className="border-b border-gray-200 hover:bg-gray-100 transition duration-300"
-              >
-                <td className="px-4 py-2">{row.name}</td>
-                <td className="px-4 py-2">{row.clicks}</td>
-                <td className="px-4 py-2">{row.conversions}</td>
-                <td className="px-4 py-2">{row.rate}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Display aggregated sentiment analysis in a Pie Chart */}
+      {/* <div className="mb-12">
+        <h3 className="text-2xl font-semibold mb-4">Aggregated Sentiment</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={sentimentData}
+              dataKey="count"
+              nameKey="label"
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              label={({ label, count }) => `${label} (${count})`}
+              animationDuration={800}
+              animationEasing="ease-in-out"
+            >
+              {sentimentData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div> */}
+
+      {/* List out each post and its replies with sentiment */}
+      <div>
+        <h3 className="text-2xl font-semibold mb-4">Posts Details</h3>
+        {posts.map((post, idx) => (
+          <div key={post.uri} className="mb-6 p-4 border border-gray-300 rounded">
+            <h4 className="text-xl font-bold mb-2">Post {idx + 1}</h4>
+            <p className="mb-2">
+              <span className="font-semibold">Text:</span> {post.text}
+            </p>
+            <p className="mb-2">
+              <span className="font-semibold">Likes:</span> {post.likeCount || 0} |{" "}
+              <span className="font-semibold">Reposts:</span> {post.repostCount || 0} |{" "}
+              <span className="font-semibold">Replies:</span>{" "}
+              {(post.replies && post.replies.length) || 0}
+            </p>
+            {post.replies && post.replies.length > 0 && (
+              <div className="ml-4">
+                <h5 className="font-semibold mb-1">Replies:</h5>
+                <ul>
+                  {post.replies.map((reply, i) => (
+                    <li key={i} className="mb-1">
+                      <span className="italic">"{reply.text}"</span> — Sentiment:{" "}
+                      <span className="font-semibold">
+                        {reply.sentiment?.[0]?.label || "unknown"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-export default MarketingAnalytics;
+export default RecentPostsAnalytics;
