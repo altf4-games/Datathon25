@@ -12,7 +12,6 @@ import { SiGmail } from "react-icons/si";
 function TwoColumnForm() {
   const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  // campaignDetails will now store two responses: fal and hf.
   const [campaignDetails, setCampaignDetails] = useState(null);
   const { control, handleSubmit, watch } = useForm();
   const selectedTemplate = watch("promptTemplate", "Billboard in a city");
@@ -21,7 +20,6 @@ function TwoColumnForm() {
     console.log("Form Data:", data);
     setIsLoading(true);
     try {
-      // Fire both requests concurrently
       const [falRes, hfRes] = await Promise.all([
         fetch("http://localhost:3000/generate-campaign", {
           method: "POST",
@@ -50,12 +48,12 @@ function TwoColumnForm() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col md:flex-row p-8">
+    <div className="min-h-screen bg-black flex flex-col md:flex-row p-4 md:p-8">
       {/* Left Side - Form */}
       <div
-        className={`bg-gray-900 text-white p-6 rounded-lg shadow-lg transition-all duration-500 ease-in-out ${
-          isOpen ? "md:w-2/5" : "md:w-[75px]"
-        } w-full`}
+        className={`bg-gray-900 text-white p-4 md:p-6 rounded-lg shadow-lg transition-all duration-500 ease-in-out ${
+          isOpen ? "w-full md:w-2/5" : "w-full md:w-[75px]"
+        }`}
       >
         <div className="flex justify-between items-center mb-4">
           <h2
@@ -229,7 +227,7 @@ function TwoColumnForm() {
       </div>
 
       {/* Right Side - A/B Test Results */}
-      <div className="flex-1 ml-6 mt-6 md:mt-0">
+      <div className="flex-1 mt-6 md:mt-0 md:ml-6">
         {isLoading && (
           <div className="flex justify-center items-center h-full">
             <span className="text-xl text-neutral-200 font-semibold">
@@ -242,9 +240,9 @@ function TwoColumnForm() {
             <h2 className="text-3xl text-white font-bold mb-6 text-center">
               A/B Test Results
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Fal-AI Model Card */}
-              <div className="bg-gray-800 rounded-lg shadow-lg p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Option A Card */}
+              <div className="bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
                 <h3 className="text-2xl font-semibold text-blue-400 mb-4 text-center">
                   Option A
                 </h3>
@@ -269,8 +267,8 @@ function TwoColumnForm() {
                   )}
                 </div>
               </div>
-              {/* Hugging Face Model Card */}
-              <div className="bg-gray-800 rounded-lg shadow-lg p-6">
+              {/* Option B Card */}
+              <div className="bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
                 <h3 className="text-2xl font-semibold text-blue-400 mb-4 text-center">
                   Option B
                 </h3>

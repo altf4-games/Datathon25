@@ -4,12 +4,18 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const fetch = require("node-fetch");
 const cors = require("cors");
 const { fal } = require("@fal-ai/client");
+const sharp = require("sharp");
+const { HfInference } = require("@huggingface/inference");
+const { BskyAgent } = require("@atproto/api");
 
 dotenv.config();
+
 const app = express();
 app.use(express.json());
 app.use(cors());
 
+const client = new HfInference(process.env.HF);
+const agent = new BskyAgent({ service: "https://bsky.social" });
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -26,12 +32,12 @@ function getCurrentFestival() {
     2,
     "0"
   )}-${String(today.getDate()).padStart(2, "0")}`;
-  for (const festival of festivals) {
-    if (currentMonthDay >= festival.start && currentMonthDay <= festival.end) {
-      return festival.name;
-    }
-  }
-  return null;
+  return (
+    festivals.find(
+      (festival) =>
+        currentMonthDay >= festival.start && currentMonthDay <= festival.end
+    )?.name || null
+  );
 }
 
 function generateMarketingPrompt({
@@ -45,47 +51,43 @@ function generateMarketingPrompt({
   promptTemplate,
   city,
 }) {
-  return `Create a marketing campaign for a product. 
-          Company: ${companyName}.
-          Product: ${product}. 
-          Target Audience: ${targetAudience}. 
-          Campaign Goal: ${campaignGoal}. 
-          Tone: ${tone}. 
-          Festival: ${
-            festival ? `Align with ${festival} festival.` : "General campaign"
-          }
-          ${promptTemplate ? `Custom Prompt: ${promptTemplate}.` : ""}
-          You're only supposed to provide a tagline, captions, and recommended hashtags. Call to Action: ${callToAction} Keep it very short and don't try to use markdown`;
+  return `Create a marketing campaign for a product in under 300 characters also don't use markdown. Company: ${companyName}. Product: ${product}. Target Audience: ${targetAudience}. Campaign Goal: ${campaignGoal}. Tone: ${tone}. Festival: ${
+    festival ? `Align with ${festival} festival.` : "General campaign"
+  } ${
+    promptTemplate ? `Custom Prompt: ${promptTemplate}.` : ""
+  } You're only supposed to provide a tagline, captions, and recommended hashtags. Call to Action: ${callToAction}. Keep it very short.`;
 }
 
 async function generateImage(description) {
-  const result = await fal.subscribe("fal-ai/recraft-v3", {
-    input: { prompt: description },
-    logs: true,
-    onQueueUpdate: (update) => {
-      if (update.status === "IN_PROGRESS") {
-        update.logs.map((log) => log.message).forEach(console.log);
-      }
-    },
-  });
-  return result.data.images?.[0]?.url || "";
+  try {
+    const result = await fal.subscribe("fal-ai/recraft-v3", {
+      input: { prompt: description },
+      logs: true,
+    });
+    return result.data?.images?.[0]?.url || "";
+  } catch (error) {
+    console.error("Error generating image:", error);
+    return "";
+  }
 }
 
 async function generateImageb(description) {
-  const response = await fetch(
-    "https://api-inference.huggingface.co/models/ZB-Tech/Text-to-Image",
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.HF}`,
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify({ inputs: description }),
-    }
-  );
-  const result = await response.blob();
-  const buffer = Buffer.from(await result.arrayBuffer());
-  return buffer.toString("base64");
+  try {
+    const image = await client.textToImage({
+      model: "ZB-Tech/Text-to-Image",
+      inputs: description,
+      parameters: { num_inference_steps: 100 },
+    });
+    const buffer = Buffer.from(await image.arrayBuffer());
+    const resizedBuffer = await sharp(buffer)
+      .resize(800)
+      .jpeg({ quality: 80 })
+      .toBuffer();
+    return resizedBuffer.toString("base64");
+  } catch (error) {
+    console.error("Error generating image (HF):", error);
+    return "";
+  }
 }
 
 function getBestCampaignTime() {
@@ -95,6 +97,56 @@ function getBestCampaignTime() {
     : currentHour < 18
     ? "Evening"
     : "Tomorrow Morning";
+}
+
+async function SendPost(txt, image, isBase64 = false) {
+  try {
+    await agent.login({
+      identifier: process.env.BSKY_USERNAME,
+      password: process.env.BSKY_PASSWORD,
+    });
+
+    let embedData;
+
+    if (isBase64) {
+      // Convert base64 to a buffer.
+      const imageBuffer = Buffer.from(image, "base64");
+      // Upload the blob to BlueSky.
+      const uploadResponse = await agent.uploadBlob(imageBuffer, {
+        encoding: "image/jpeg",
+      });
+      // The uploadResponse contains a blob reference that we can use.
+      embedData = {
+        $type: "app.bsky.embed.images",
+        images: [
+          {
+            alt: "Generated Image",
+            image: uploadResponse.data.blob, // blob ref returned by the uploadBlob call
+            aspectRatio: { width: 1000, height: 500 },
+          },
+        ],
+      };
+    } else {
+      // If you already have a URL from Fal AI, attach it as an external embed.
+      embedData = {
+        $type: "app.bsky.embed.external",
+        external: {
+          uri: image,
+          title: "Marketing Campaign Image",
+          description: "AI-generated campaign image",
+        },
+      };
+    }
+
+    const post = await agent.post({
+      text: txt,
+      embed: embedData,
+      createdAt: new Date().toISOString(),
+    });
+    //console.log("Post Created:", post);
+  } catch (error) {
+    console.error("Error posting to BlueSky:", error);
+  }
 }
 
 app.post("/generate-campaign", async (req, res) => {
@@ -136,12 +188,12 @@ app.post("/generate-campaign", async (req, res) => {
     });
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    const imageDescription = `${product} campaign in ${city} as background and featuring ${
-      festival || "a general theme"
-    } with a focus on ${targetAudience}. Company: ${companyName}. Tone: ${tone}. ${
-      promptTemplate || ""
-    }`;
-    const imageUrl = await generateImage(imageDescription);
+    const imageUrl = await generateImage(
+      `${product} campaign in ${city} featuring ${
+        festival || "a general theme"
+      }.`
+    );
+    await SendPost(text, imageUrl, false);
     res.json({
       success: true,
       details: {
@@ -152,7 +204,7 @@ app.post("/generate-campaign", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error generating campaign:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
@@ -196,12 +248,12 @@ app.post("/generate-campaign-hf", async (req, res) => {
     });
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    const imageDescription = `${product} campaign in ${city} as background and featuring ${
-      festival || "a general theme"
-    } with a focus on ${targetAudience}. Company: ${companyName}. Tone: ${tone}. ${
-      promptTemplate || ""
-    }`;
-    const imageBase64 = await generateImageb(imageDescription);
+    const imageBase64 = await generateImageb(
+      `${product} campaign in ${city} featuring ${
+        festival || "a general theme"
+      }.`
+    );
+    await SendPost(text, imageBase64, true);
     res.json({
       success: true,
       details: {
@@ -212,24 +264,9 @@ app.post("/generate-campaign-hf", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error generating campaign (HF):", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
 
-app.get("/displayImage", (req, res) => {
-  res.json({
-    images: [
-      {
-        url: "https://v3.fal.media/files/kangaroo/9kKGTsmuNePNDkqKAkAyX_image.webp",
-        file_name: "image.webp",
-        file_size: 342384,
-        content_type: "image/webp",
-      },
-    ],
-  });
-});
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
+app.listen(3000, () => console.log("Server is running on port 3000"));
