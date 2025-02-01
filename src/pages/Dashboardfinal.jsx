@@ -262,9 +262,9 @@ function TwoColumnForm() {
             <ReactMarkdown className="mb-2">{String(campaignDetails.text)}</ReactMarkdown>
             <p className="mb-2">Best Time to Campaign: {campaignDetails.bestCampaignTime}</p>
             <p className="mb-2">Current Festival: {campaignDetails.currentFestival}</p>
-            {campaignDetails.imageBase64 && (
+            {campaignDetails.imageUrl && (
               <img
-                src={campaignDetails.imageBase64}
+                src={campaignDetails.imageUrl}
                 alt="Campaign"
                 className="mt-4 rounded-lg"
               />
