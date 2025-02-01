@@ -1,10 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import React, { useState, useCallback } from 'react';
-import { FaTachometerAlt, FaBullhorn, FaChartLine, FaFileAlt, FaCog, FaUserCircle, FaSignOutAlt, FaUserSecret } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaTachometerAlt, FaChartLine, FaFileAlt, FaCog, FaUserCircle, FaSignOutAlt, FaUserSecret } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
-import { auth } from "../App"; 
-import { signInWithPopup, GoogleAuthProvider, signInAnonymously, signOut } from "firebase/auth";
-
 
 function Sidebar() {
   const [user, setUser] = useState(null);
@@ -13,39 +10,26 @@ function Sidebar() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleGoogleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      setIsLoginModalOpen(false);
-      setUser(result.user);
-    } catch (error) {
-      console.error("Error with Google sign-in:", error.message);
-    }
+    // Handle Google login logic here
+    setIsLoginModalOpen(false);
+    setUser({ displayName: 'Google User' });
   };
 
   const handleAnonymousLogin = async () => {
-    try {
-      const result = await signInAnonymously(auth);
-      setIsLoginModalOpen(false);
-      setUser(result.user);
-    } catch (error) {
-      console.error("Error with Anonymous sign-in:", error.message);
-    }
+    // Handle anonymous login logic here
+    setIsLoginModalOpen(false);
+    setUser({ displayName: 'Anonymous User' });
   };
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null); // Clear the user state on logout
-      handleNavigation('/')
-    } catch (error) {
-      console.error("Error with sign-out:", error.message);
-    }
+    // Handle logout logic here
+    setUser(null); // Clear the user state on logout
+    handleNavigation('/');
   };
 
   const handleNavigation = (route) => {
     router(route);
-  }
+  };
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
