@@ -27,33 +27,33 @@ function LandingPage() {
         <div className="grid md:grid-cols-3 gap-12">
           
           {/* Feature 1 */}
-          <div className="bg-gray-800 p-8 rounded-lg shadow-lg hover:shadow-xl  transition duration-500 transform hover:scale-105 animate-fadeIn">
+          <div className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl  transition duration-500 transform hover:scale-105 animate-fadeIn">
             <div className="flex justify-center items-center text-teal-400 text-5xl mb-6 animate-pulse">
               🌍
             </div>
-            <h4 className="text-2xl font-semibold mb-3 text-white">Location-Based Marketing</h4>
+            <h4 className="text-2xl font-semibold mb-3 text-gray-800">Location-Based Marketing</h4>
             <p className="text-gray-400 text-base leading-relaxed">
               Enhance your campaigns by using AI to target specific locations, allowing for more precise and effective marketing.
             </p>
           </div>
 
           {/* Feature 2 */}
-          <div className="bg-gray-800 p-8 rounded-lg shadow-lg hover:shadow-xl  duration-500 transform hover:scale-105 animate-fadeIn">
+          <div className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl  duration-500 transform hover:scale-105 animate-fadeIn">
             <div className="flex justify-center items-center text-teal-400 text-5xl mb-6 animate-pulse">
               🎨
             </div>
-            <h4 className="text-2xl font-semibold mb-3 text-white">Prompt-to-Image Generation</h4>
+            <h4 className="text-2xl font-semibold mb-3 text-gray-800">Prompt-to-Image Generation</h4>
             <p className="text-gray-400 text-base leading-relaxed">
               Generate high-quality marketing images instantly from text prompts, leveraging the power of AI for content creation.
             </p>
           </div>
 
           {/* Feature 3 */}
-          <div className="bg-gray-800 p-8 rounded-lg shadow-lg hover:shadow-xl  duration-500 transform hover:scale-105 animate-fadeIn">
+          <div className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl  duration-500 transform hover:scale-105 animate-fadeIn">
             <div className="flex justify-center items-center text-teal-400 text-5xl mb-6 animate-pulse">
               📊
             </div>
-            <h4 className="text-2xl font-semibold mb-3 text-white">Advanced Analytics</h4>
+            <h4 className="text-2xl font-semibold mb-3 text-gray-800">Advanced Analytics</h4>
             <p className="text-gray-400 text-base leading-relaxed">
               Make data-driven decisions with comprehensive analytics that provide insights into consumer behavior.
             </p>

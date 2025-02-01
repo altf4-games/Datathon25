@@ -37,7 +37,7 @@ const ContactUs = () => {
   };
 
   return (
-    <div className="bg-gradient-to-b from-black via-gray-900 to-gray-800 text-white min-h-screen w-full flex flex-col items-center justify-center p-4 relative">
+    <div className="bg-white text-white min-h-screen w-full flex flex-col items-center justify-center p-4 relative">
       {/* Decorative background patterns */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute bg-gradient-radial from-teal-500 opacity-20 h-80 w-80 rounded-full -top-20 -left-20"></div>
@@ -52,12 +52,12 @@ const ContactUs = () => {
           <p className="text-gray-300">Your message has been sent successfully. We'll get back to you shortly.</p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="bg-gray-900 p-8 rounded-lg shadow-lg max-w-lg w-full animate-fade-in-up">
+        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full animate-fade-in-up">
           <div className="space-y-4">
             <div>
-              <label className="block text-gray-300 mb-1" htmlFor="name">Name</label>
+              <label className="block text-gray-800 mb-1" htmlFor="name">Name</label>
               <input
-                className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:border-teal-500"
+                className="w-full p-3 rounded-lg bg-white border border-gray-600 focus:outline-none focus:border-teal-500"
                 type="text"
                 id="name"
                 name="name"
@@ -68,9 +68,9 @@ const ContactUs = () => {
             </div>
 
             <div>
-              <label className="block text-gray-300 mb-1" htmlFor="email">Email</label>
+              <label className="block text-gray-800 mb-1" htmlFor="email">Email</label>
               <input
-                className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:border-teal-500"
+                className="w-full p-3 rounded-lg bg-white border border-gray-600 focus:outline-none focus:border-teal-500"
                 type="email"
                 id="email"
                 name="email"
@@ -81,9 +81,9 @@ const ContactUs = () => {
             </div>
 
             <div>
-              <label className="block text-gray-300 mb-1" htmlFor="subject">Subject</label>
+              <label className="block text-gray-800 mb-1" htmlFor="subject">Subject</label>
               <input
-                className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:border-teal-500"
+                className="w-full p-3 rounded-lg bg-white border border-gray-600 focus:outline-none focus:border-teal-500"
                 type="text"
                 id="subject"
                 name="subject"
@@ -94,9 +94,9 @@ const ContactUs = () => {
             </div>
 
             <div>
-              <label className="block text-gray-300 mb-1" htmlFor="message">Message</label>
+              <label className="block text-gray-800 mb-1" htmlFor="message">Message</label>
               <textarea
-                className="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:border-teal-500"
+                className="w-full p-3 rounded-lg bg-white border border-gray-600 focus:outline-none focus:border-teal-500"
                 id="message"
                 name="message"
                 rows="4"

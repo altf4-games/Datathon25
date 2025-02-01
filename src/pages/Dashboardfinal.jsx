@@ -242,7 +242,7 @@ function TwoColumnForm() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Option A Card */}
-              <div className="bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
+              <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
                 <h3 className="text-2xl font-semibold text-blue-400 mb-4 text-center">
                   Option A
                 </h3>
