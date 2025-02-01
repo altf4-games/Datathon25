@@ -2,14 +2,14 @@ import React from "react";
 
 function LandingPage() {
   return (
-    <div className="bg-gradient-to-b from-gray-900 to-black text-white min-h-screen pt-32 font-sans">
+    <div className="bg-white text-white min-h-screen pt-32 font-sans">
 
       {/* Hero Section */}
       <header className="flex flex-col items-center justify-center text-center py-32 px-6 space-y-6 animate-fadeIn">
-        <h2 className="text-5xl md:text-7xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 animate-slideUp">
+        <h2 className="text-3xl md:text-7xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 animate-slideUp">
           AI-Driven Marketing Solutions
         </h2>
-        <p className="text-lg md:text-2xl text-gray-300 max-w-2xl opacity-80 leading-relaxed animate-fadeIn">
+        <p className="text-lg md:text-2xl text-gray-700 max-w-2xl opacity-80 leading-relaxed animate-fadeIn">
           Our platform leverages AI to provide insights tailored for Indian consumers, maximizing the effectiveness of your marketing efforts.
         </p>
         <button
