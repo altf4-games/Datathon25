@@ -1,66 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { IoOptionsOutline } from "react-icons/io5";
 import { useForm, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Tooltip } from "@mui/material"; // For better descriptions
-import ReactMarkdown from 'react-markdown';
+import { Tooltip } from "@mui/material";
+import ReactMarkdown from "react-markdown";
 import { FaGithub } from "react-icons/fa";
 import { FaTwitter } from "react-icons/fa";
 import { SiGmail } from "react-icons/si";
 
 function TwoColumnForm() {
   const [isOpen, setIsOpen] = useState(true);
-  const [ isLoading, setIsLoading ] = useState(false);
-  
+  const [isLoading, setIsLoading] = useState(false);
+  // campaignDetails will now store two responses: fal and hf.
   const [campaignDetails, setCampaignDetails] = useState(null);
   const { control, handleSubmit, watch } = useForm();
   const selectedTemplate = watch("promptTemplate", "Billboard in a city");
 
   const onSubmit = async (data) => {
     console.log("Form Data:", data);
-    // Send data to the backend
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      const response = await fetch("http://localhost:3000/generate-campaign", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+      // Fire both requests concurrently
+      const [falRes, hfRes] = await Promise.all([
+        fetch("http://localhost:3000/generate-campaign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }),
+        fetch("http://localhost:3000/generate-campaign-hf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }),
+      ]);
+      const falResult = await falRes.json();
+      const hfResult = await hfRes.json();
+      console.log("Fal Response:", falResult);
+      console.log("HF Response:", hfResult);
+      setCampaignDetails({
+        fal: falResult.details,
+        hf: hfResult.details,
       });
-      const result = await response.json();
       setIsLoading(false);
-      console.log("Response from server:", result);
-      setCampaignDetails(result.details); // Store campaign details in state
     } catch (error) {
       console.error("Error submitting campaign data:", error);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col md:flex-row w-[99vw]  bg-black p-24 justify-center overflow-hidden">
-      {/* Left side - Form */}
+    <div className="min-h-screen bg-black flex flex-col md:flex-row p-8">
+      {/* Left Side - Form */}
       <div
-        className={`bg-gray-100/20 h-full p-6 rounded-lg shadow-lg transition-all duration-500 ease-in-out ${
-          isOpen ? 'md:w-2/5' : 'md:w-[75px]'
+        className={`bg-gray-900 text-white p-6 rounded-lg shadow-lg transition-all duration-500 ease-in-out ${
+          isOpen ? "md:w-2/5" : "md:w-[75px]"
         } w-full`}
       >
-        <h2
-          onClick={() => setIsOpen((prev) => !prev
-            
-            
-          )}
-          className="text-2xl font-bold mb-4 cursor-pointer flex items-center
-           justify-start hover:scale-105 transition"
-        >
-          <IoOptionsOutline size={35} color='white' />
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2
+            onClick={() => setIsOpen((prev) => !prev)}
+            className="text-2xl font-bold cursor-pointer flex items-center hover:scale-105 transition"
+          >
+            <IoOptionsOutline size={35} />
+            {isOpen && <span className="ml-2">Campaign Settings</span>}
+          </h2>
+        </div>
         <form
           onSubmit={handleSubmit(onSubmit)}
           className={`space-y-4 transition-opacity duration-500 ${
-            isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
         >
-          {/* Company Name */}
           <Controller
             name="companyName"
             control={control}
@@ -70,15 +81,11 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Company Name"
-                className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-sm
-                           focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400 transition
-                           duration-300 placeholder-gray-400"
+                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
           />
-
-          {/* Product Name */}
           <Controller
             name="product"
             control={control}
@@ -88,15 +95,11 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Product Name"
-                className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-sm
-                           focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400 transition
-                           duration-300 placeholder-gray-400"
+                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
           />
-
-          {/* Target Audience */}
           <Controller
             name="targetAudience"
             control={control}
@@ -106,43 +109,36 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Target Audience"
-                className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-sm
-                           focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400 transition
-                           duration-300 placeholder-gray-400"
+                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
           />
-
-          {/* Campaign Goal with Tooltip */}
           <Controller
             name="campaignGoal"
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <Tooltip title="Define the main objective, like increasing brand awareness, driving sales, or promoting a new product">
+              <Tooltip title="Define the main objective, e.g., increasing brand awareness, driving sales, or promoting a new product">
                 <input
                   {...field}
                   type="text"
                   placeholder="Campaign Goal"
-                  className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-sm
-                             focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400 transition
-                             duration-300 placeholder-gray-400"
+                  className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                   required
                 />
               </Tooltip>
             )}
           />
-
-          {/* Tone Selection */}
           <Controller
             name="tone"
             control={control}
             defaultValue="Professional"
             render={({ field }) => (
-              <select {...field} className="w-full  p-2 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-sm
-                       focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400 transition
-                       duration-300">
+              <select
+                {...field}
+                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
+              >
                 <option value="Professional">Professional</option>
                 <option value="Friendly">Friendly</option>
                 <option value="Humorous">Humorous</option>
@@ -150,8 +146,6 @@ function TwoColumnForm() {
               </select>
             )}
           />
-
-          {/* Call to Action Link */}
           <Controller
             name="callToActionLink"
             control={control}
@@ -161,15 +155,11 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Call to Action Link"
-                className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-sm
-                           focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400 transition
-                           duration-300 placeholder-gray-400"
+                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
           />
-
-          {/* Campaign Date */}
           <Controller
             name="campaignDate"
             control={control}
@@ -180,14 +170,10 @@ function TwoColumnForm() {
                 selected={field.value}
                 onChange={(date) => field.onChange(date)}
                 placeholderText="Select Campaign Date"
-                className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-sm
-                           focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400 transition
-                           duration-300"
+                className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
               />
             )}
           />
-
-                    {/* City */}
           <Controller
             name="city"
             control={control}
@@ -197,23 +183,20 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="City"
-                className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-sm
-                          focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400 transition
-                          duration-300 placeholder-gray-400"
+                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
           />
-
-          {/* Prompt Template */}
           <Controller
             name="promptTemplate"
             control={control}
             defaultValue="Billboard in a city"
             render={({ field }) => (
-              <select {...field} className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-sm
-                       focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400 transition
-                       duration-300">
+              <select
+                {...field}
+                className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
+              >
                 <option value="Billboard in a city">Billboard in a city</option>
                 <option value="Social media post">Social media post</option>
                 <option value="Magazine ad">Magazine ad</option>
@@ -222,8 +205,6 @@ function TwoColumnForm() {
               </select>
             )}
           />
-
-          {/* Custom Prompt Text Area */}
           {selectedTemplate === "Custom" && (
             <Controller
               name="customPrompt"
@@ -233,15 +214,11 @@ function TwoColumnForm() {
                 <textarea
                   {...field}
                   placeholder="Enter custom prompt details"
-                  className="w-full p-2 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-sm
-                             focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400 transition
-                             duration-300 placeholder-gray-400"
+                  className="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 ></textarea>
               )}
             />
           )}
-
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg shadow-md transition duration-300"
@@ -249,63 +226,78 @@ function TwoColumnForm() {
             Generate Campaign
           </button>
         </form>
-
-        {/* Display campaign details after submission */}
-        
       </div>
 
-      {/* Right side - Empty div */}
-      <div className={`flex-1 max-h-[600px] overflow-y-scroll ${isOpen? 'pt-96' : 'p-96'} pb-2 w-full relative flex items-center justify-center bg-gray-100/20 rounded-lg shadow-lg ml-6 p-8`}>
-      {campaignDetails && (
-          <div className="text-sm bg-gray-700 pt-2 px-6 pb-2 rounded-lg">
-            <h2 className="text-2xl font-semibold mb-4">Campaign Details</h2>
-            <ReactMarkdown className="mb-2">{String(campaignDetails.text)}</ReactMarkdown>
-            <p className="mb-2">Best Time to Campaign: {campaignDetails.bestCampaignTime}</p>
-            <p className="mb-2">Current Festival: {campaignDetails.currentFestival}</p>
-            {campaignDetails.imageUrl && (
-              <img
-                src={campaignDetails.imageUrl}
-                alt="Campaign"
-                className="mt-4 rounded-lg"
-              />
-            )}
-            
+      {/* Right Side - A/B Test Results */}
+      <div className="flex-1 ml-6 mt-6 md:mt-0">
+        {isLoading && (
+          <div className="flex justify-center items-center h-full">
+            <span className="text-xl text-neutral-200 font-semibold">
+              Generating...
+            </span>
           </div>
         )}
-        {
-            isLoading && (
-              <div className='absolute top-1/2 w-1/2 ml-56 '>
-              <span className='text-xl  text-neutral-200 font-semibold '>Generating ...</span>
+        {campaignDetails && (
+          <div>
+            <h2 className="text-3xl text-white font-bold mb-6 text-center">
+              A/B Test Results
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Fal-AI Model Card */}
+              <div className="bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 className="text-2xl font-semibold text-blue-400 mb-4 text-center">
+                  Option A
+                </h3>
+                <div className="text-sm text-gray-300">
+                  <ReactMarkdown className="mb-2">
+                    {String(campaignDetails.fal.text)}
+                  </ReactMarkdown>
+                  <p className="mb-2">
+                    <strong>Best Time to Campaign:</strong>{" "}
+                    {campaignDetails.fal.bestCampaignTime}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Current Festival:</strong>{" "}
+                    {campaignDetails.fal.currentFestival}
+                  </p>
+                  {campaignDetails.fal.imageUrl && (
+                    <img
+                      src={campaignDetails.fal.imageUrl}
+                      alt="Fal AI Campaign"
+                      className="mt-4 rounded-lg w-full"
+                    />
+                  )}
+                </div>
+              </div>
+              {/* Hugging Face Model Card */}
+              <div className="bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 className="text-2xl font-semibold text-blue-400 mb-4 text-center">
+                  Option B
+                </h3>
+                <div className="text-sm text-gray-300">
+                  <ReactMarkdown className="mb-2">
+                    {String(campaignDetails.hf.text)}
+                  </ReactMarkdown>
+                  <p className="mb-2">
+                    <strong>Best Time to Campaign:</strong>{" "}
+                    {campaignDetails.hf.bestCampaignTime}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Current Festival:</strong>{" "}
+                    {campaignDetails.hf.currentFestival}
+                  </p>
+                  {campaignDetails.hf.imageBase64 && (
+                    <img
+                      src={`data:image/png;base64,${campaignDetails.hf.imageBase64}`}
+                      alt="HF Campaign"
+                      className="mt-4 rounded-lg w-full"
+                    />
+                  )}
+                </div>
+              </div>
             </div>
-            )
-          }
-        <div className='fixed bottom-0 right-20 rounded-full py-1 pb-1.5 
-         px-4 text-xl flex gap-2 items-center justify-center
-         '
-          
-        >
-         <a href="https://www.github.com" target="_blank" rel="noopener noreferrer">
-        <div className='bg-white/30 px-4 py-1 rounded-full flex items-center justify-center gap-2'>
-          <FaGithub size={25} color='black' /> github
-        </div>
-      </a>
-
-      <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer">
-        <div className='bg-white/30 px-4 py-1 rounded-full flex items-center justify-center gap-2'>
-          <FaTwitter size={25} color='cyan' /> twitter
-        </div>
-      </a>
-          
-          <a href="mailto:example@example.com" target="_blank" rel="noopener noreferrer">
-          <div 
-            
-            className='bg-white/30 px-4 py-1 rounded-full flex items-center justify-center gap-2 '>
-              <SiGmail size={25} color='red'/> gmail
-            </div>
-          </a>
-          
-          
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
