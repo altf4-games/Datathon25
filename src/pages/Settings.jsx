@@ -10,14 +10,14 @@ const SettingsPage = () => {
   const [isBillingOpen, setBillingOpen] = useState(false);
 
   return (
-    <div className="p-8 ml-32 min-h-screen w-[90vw] bg-gradient-to-b to-gray-900 via-gray-900 from-gray-800 text-white mt-16">
+    <div className="p-8 ml-32 min-h-screen w-[90vw] bg-white text-white mt-16">
       <h2 className="text-4xl font-bold text-center text-teal-400 mb-8">Settings</h2>
 
       {/* Settings Container */}
       <div className="space-y-4">
 
         {/* Account Settings Section */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
           <button
             onClick={() => setAccountOpen(!isAccountOpen)}
             className="flex items-center justify-between w-full text-xl font-semibold text-teal-400"
@@ -35,7 +35,7 @@ const SettingsPage = () => {
                 <input
                   type="text"
                   placeholder="Enter your username"
-                  className="w-full mt-1 p-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  className="w-full mt-1 p-2 bg-white text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
                 />
               </div>
               <div>
@@ -43,7 +43,7 @@ const SettingsPage = () => {
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full mt-1 p-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  className="w-full mt-1 p-2 bg-white text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
                 />
               </div>
               <button className="mt-4 w-full bg-teal-400 text-gray-900 font-semibold py-2 rounded hover:bg-teal-500">
@@ -54,7 +54,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Notification Preferences Section */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
           <button
             onClick={() => setNotificationsOpen(!isNotificationsOpen)}
             className="flex items-center justify-between w-full text-xl font-semibold text-teal-400"
@@ -67,14 +67,14 @@ const SettingsPage = () => {
           </button>
           {isNotificationsOpen && (
             <div className="mt-4 space-y-4 transition duration-300">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center text-gray-700 justify-between">
                 <span>Email Notifications</span>
                 <input
                   type="checkbox"
                   className="w-5 h-5 text-teal-400 bg-gray-700 border-gray-600 focus:ring-teal-400"
                 />
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center text-gray-700 justify-between">
                 <span>Push Notifications</span>
                 <input
                   type="checkbox"
@@ -89,7 +89,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Privacy & Security Section */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
           <button
             onClick={() => setPrivacyOpen(!isPrivacyOpen)}
             className="flex items-center justify-between w-full text-xl font-semibold text-teal-400"
@@ -125,7 +125,7 @@ const SettingsPage = () => {
         </div>
 
         {/* Billing Information Section */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
           <button
             onClick={() => setBillingOpen(!isBillingOpen)}
             className="flex items-center justify-between w-full text-xl font-semibold text-teal-400"
@@ -143,7 +143,7 @@ const SettingsPage = () => {
                 <input
                   type="text"
                   placeholder="Enter your card number"
-                  className="w-full mt-1 p-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  className="w-full mt-1 p-2 bg-white text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
                 />
               </div>
               <div className="flex space-x-4">
@@ -152,7 +152,7 @@ const SettingsPage = () => {
                   <input
                     type="text"
                     placeholder="MM/YY"
-                    className="w-full mt-1 p-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    className="w-full mt-1 p-2 bg-white text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
                   />
                 </div>
                 <div className="flex-1">
@@ -160,7 +160,7 @@ const SettingsPage = () => {
                   <input
                     type="text"
                     placeholder="CVV"
-                    className="w-full mt-1 p-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    className="w-full mt-1 p-2 bg-white text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
                   />
                 </div>
               </div>
