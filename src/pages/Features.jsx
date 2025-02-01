@@ -4,13 +4,13 @@ import { FaBrain, FaRobot, FaUserTie } from 'react-icons/fa';
 const FeaturesSection = () => {
   const features = [
     {
-      icon: <FaBrain className="text-indigo-600 w-12 h-12 mb-4" />,
+      icon: <FaBrain className="text-blue-600 w-12 h-12 mb-4" />,
       title: 'AI-Driven Insights',
       description:
         'Gain valuable insights from vast data to enhance your marketing strategy with data-backed decisions.',
     },
     {
-      icon: <FaRobot className="text-indigo-600 w-12 h-12 mb-4" />,
+      icon: <FaRobot className="text-blue-600 w-12 h-12 mb-4" />,
       title: 'Automated Campaigns',
       description:
         'Automate and optimize marketing campaigns with ease, saving time and maximizing reach across platforms.',
@@ -24,9 +24,9 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section className="bg-gradient-to-b text-white to-gray-900 from-black py-16">
+    <section className="bg-gray-50 text-gray-900 py-16">
       <div className="container mx-auto px-6 text-center max-w-5xl">
-        <h2 className="text-3xl font-bold  mb-6">
+        <h2 className="text-3xl font-bold text-gray-900 mb-6">
           Powerful Features to Enhance Your Marketing
         </h2>
         <p className="text-gray-600 mb-12">
@@ -36,11 +36,11 @@ const FeaturesSection = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
             >
               {feature.icon}
-              <h3 className="text-xl font-semibold  mb-2">{feature.title}</h3>
-              <p className="text-white">{feature.description}</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
+              <p className="text-gray-600">{feature.description}</p>
             </div>
           ))}
         </div>

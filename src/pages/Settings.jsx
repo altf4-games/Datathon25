@@ -103,21 +103,21 @@ const SettingsPage = () => {
           {isPrivacyOpen && (
             <div className="mt-4 space-y-4 transition duration-300">
               <div className="flex items-center justify-between">
-                <span>Two-Factor Authentication</span>
+                <span className="text-gray-700">Two-Factor Authentication</span>
                 <input
                   type="checkbox"
-                  className="w-5 h-5 text-teal-400 bg-gray-700 border-gray-600 focus:ring-teal-400"
+                  className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="text-sm text-gray-400">Change Password</label>
+                <label className="text-sm text-gray-600">Change Password</label>
                 <input
                   type="password"
                   placeholder="New Password"
-                  className="w-full mt-1 p-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  className="w-full mt-1 p-2 bg-white border border-gray-300 text-gray-900 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <button className="mt-4 w-full bg-teal-400 text-gray-900 font-semibold py-2 rounded hover:bg-teal-500">
+              <button className="mt-4 w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700">
                 Save Changes
               </button>
             </div>
