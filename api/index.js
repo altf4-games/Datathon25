@@ -60,19 +60,18 @@ function getCurrentFestival() {
 function generateMarketingPrompt({
   product,
   targetAudience,
-  campaignGoal,
-  tone,
+  maxBudget,
+  userPrompt,
   festival,
   companyName,
   callToAction,
-  promptTemplate,
   city,
 }) {
-  return `Create a marketing campaign for a product in under 300 characters also don't use markdown. Company: ${companyName}. Product: ${product}. Target Audience: ${targetAudience}. Campaign Goal: ${campaignGoal}. Tone: ${tone}. Festival: ${
-    festival ? `Align with ${festival} festival.` : "General campaign"
+  return `Create a marketing campaign for a product in under 300 characters; don't use markdown. Company: ${companyName}. Product: ${product}. Target Audience: ${targetAudience}. Max Budget: ${maxBudget}. ${
+    userPrompt ? `Campaign Details: ${userPrompt}.` : ""
   } ${
-    promptTemplate ? `Custom Prompt: ${promptTemplate}.` : ""
-  } You're only supposed to provide a tagline, captions, and recommended hashtags. Call to Action: ${callToAction}. Keep it very short.`;
+    festival ? `Align with ${festival} festival.` : "General campaign."
+  } Call to Action: ${callToAction}. Keep it very short.`;
 }
 
 async function generateImage(description) {
@@ -192,19 +191,18 @@ async function generateCampaign(data) {
   const {
     product,
     targetAudience,
-    campaignGoal,
-    tone,
+    maxBudget,
+    userPrompt,
     companyName,
     callToActionLink,
-    promptTemplate,
     city,
   } = data;
 
   if (
     !product ||
     !targetAudience ||
-    !campaignGoal ||
-    !tone ||
+    !maxBudget ||
+    !userPrompt ||
     !companyName ||
     !callToActionLink ||
     !city
@@ -216,21 +214,20 @@ async function generateCampaign(data) {
   const prompt = generateMarketingPrompt({
     product,
     targetAudience,
-    campaignGoal,
-    tone,
+    maxBudget,
+    userPrompt,
     festival,
     companyName,
     callToAction: callToActionLink,
-    promptTemplate,
     city,
   });
 
   const result = await model.generateContent(prompt);
   const text = result.response.text();
 
-  const imageDescription = `${product} campaign in ${city} as background and featuring ${
+  const imageDescription = `${product} campaign in ${city} with a max budget of ${maxBudget} featuring ${
     festival || "a general theme"
-  } with a focus on ${targetAudience}. Company: ${companyName}. Tone: ${tone}. ${promptTemplate}`;
+  } targeting ${targetAudience}. Company: ${companyName}. ${userPrompt}`;
   const imageUrl = await generateImage(imageDescription);
 
   return {
@@ -259,18 +256,17 @@ app.post("/generate-campaign-hf", async (req, res) => {
     const {
       product,
       targetAudience,
-      campaignGoal,
-      tone,
+      maxBudget,
+      userPrompt,
       companyName,
       callToActionLink,
-      promptTemplate,
       city,
     } = req.body;
     if (
       !product ||
       !targetAudience ||
-      !campaignGoal ||
-      !tone ||
+      !maxBudget ||
+      !userPrompt ||
       !companyName ||
       !callToActionLink ||
       !city
@@ -283,20 +279,19 @@ app.post("/generate-campaign-hf", async (req, res) => {
     const prompt = generateMarketingPrompt({
       product,
       targetAudience,
-      campaignGoal,
-      tone,
+      maxBudget,
+      userPrompt,
       festival,
       companyName,
       callToAction: callToActionLink,
-      promptTemplate,
       city,
     });
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     const imageBase64 = await generateImageb(
-      `${product} campaign in ${city} featuring ${
+      `${product} campaign in ${city} with a max budget of ${maxBudget} featuring ${
         festival || "a general theme"
-      }.`
+      } targeting ${targetAudience}. Company: ${companyName}. ${userPrompt}`
     );
     await SendPost(text, imageBase64, true);
     res.json({
@@ -382,23 +377,21 @@ bot.onText(/\/generate_campaign (.+)/, async (msg, match) => {
   const [
     product,
     targetAudience,
-    campaignGoal,
-    tone,
+    maxBudget,
+    userPrompt,
     companyName,
     callToActionLink,
-    promptTemplate,
     city,
-  ] = params;
+  ] = params.map((param) => param.trim());
 
   try {
     const campaignDetails = await generateCampaign({
       product,
       targetAudience,
-      campaignGoal,
-      tone,
+      maxBudget,
+      userPrompt,
       companyName,
       callToActionLink,
-      promptTemplate,
       city,
     });
 

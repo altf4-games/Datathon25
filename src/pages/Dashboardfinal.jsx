@@ -13,8 +13,7 @@ function TwoColumnForm() {
   const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [campaignDetails, setCampaignDetails] = useState(null);
-  const { control, handleSubmit, watch } = useForm();
-  const selectedTemplate = watch("promptTemplate", "Billboard in a city");
+  const { control, handleSubmit } = useForm();
 
   const onSubmit = async (data) => {
     console.log("Form Data:", data);
@@ -49,9 +48,8 @@ function TwoColumnForm() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row p-4 md:p-8">
-      {/* Left Side - Form */}
       <div
-        className={`bg-white text-grey-700 p-4 md:p-6 pt-6 mt-16 ml-32 rounded-lg shadow-lg transition-all duration-500 ease-in-out ${
+        className={`bg-gray-200 text-grey-700 p-4 md:p-6 pt-6 mt-16 ml-32 rounded-lg shadow-lg transition-all duration-500 ease-in-out ${
           isOpen ? "w-full md:w-1/3" : "w-full md:w-[75px]"
         }`}
       >
@@ -79,7 +77,7 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Company Name"
-                className="w-full p-2 bg- border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                className="w-full p-2 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
@@ -93,7 +91,7 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Product Name"
-                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                className="w-full p-2 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
@@ -107,41 +105,36 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Target Audience"
-                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                className="w-full p-2 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
           />
           <Controller
-            name="campaignGoal"
+            name="maxBudget"
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <Tooltip title="Define the main objective, e.g., increasing brand awareness, driving sales, or promoting a new product">
-                <input
-                  {...field}
-                  type="text"
-                  placeholder="Campaign Goal"
-                  className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
-                  required
-                />
-              </Tooltip>
+              <input
+                {...field}
+                type="number"
+                placeholder="Max Budget"
+                className="w-full p-2 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                required
+              />
             )}
           />
           <Controller
-            name="tone"
+            name="userPrompt"
             control={control}
-            defaultValue="Professional"
+            defaultValue=""
             render={({ field }) => (
-              <select
+              <textarea
                 {...field}
-                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
-              >
-                <option value="Professional">Professional</option>
-                <option value="Friendly">Friendly</option>
-                <option value="Humorous">Humorous</option>
-                <option value="Inspirational">Inspirational</option>
-              </select>
+                placeholder="Enter campaign details including themes, tone, style, etc."
+                className="w-full p-2 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                required
+              ></textarea>
             )}
           />
           <Controller
@@ -153,7 +146,7 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="Call to Action Link"
-                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                className="w-full p-2 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
@@ -168,7 +161,7 @@ function TwoColumnForm() {
                 selected={field.value}
                 onChange={(date) => field.onChange(date)}
                 placeholderText="Select Campaign Date"
-                className="w-full p-2 bg-white text-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
+                className="w-full p-2 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
               />
             )}
           />
@@ -181,42 +174,11 @@ function TwoColumnForm() {
                 {...field}
                 type="text"
                 placeholder="City"
-                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
+                className="w-full p-2 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
                 required
               />
             )}
           />
-          <Controller
-            name="promptTemplate"
-            control={control}
-            defaultValue="Billboard in a city"
-            render={({ field }) => (
-              <select
-                {...field}
-                className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition"
-              >
-                <option value="Billboard in a city">Billboard in a city</option>
-                <option value="Social media post">Social media post</option>
-                <option value="Magazine ad">Magazine ad</option>
-                <option value="Product packaging">Product packaging</option>
-                <option value="Custom">Custom</option>
-              </select>
-            )}
-          />
-          {selectedTemplate === "Custom" && (
-            <Controller
-              name="customPrompt"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <textarea
-                  {...field}
-                  placeholder="Enter custom prompt details"
-                  className="w-full p-2 bg-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-400 transition placeholder-gray-400"
-                ></textarea>
-              )}
-            />
-          )}
           <button
             type="submit"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg shadow-md transition duration-300"
@@ -226,7 +188,6 @@ function TwoColumnForm() {
         </form>
       </div>
 
-      {/* Right Side - A/B Test Results */}
       <div className="flex-1 mt-6 md:mt-0 bg-white md:ml-6">
         {isLoading && (
           <div className="flex justify-center items-center h-full">
@@ -241,12 +202,11 @@ function TwoColumnForm() {
               A/B Test Results
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Option A Card */}
-              <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+              <div className="bg-gray-200 rounded-lg shadow-lg p-4 sm:p-6">
                 <h3 className="text-2xl font-semibold text-blue-400 mb-4 text-center">
                   Option A
                 </h3>
-                <div className="text-sm text-gray-300">
+                <div className="text-sm text-black">
                   <ReactMarkdown className="mb-2">
                     {String(campaignDetails.fal.text)}
                   </ReactMarkdown>
@@ -267,12 +227,11 @@ function TwoColumnForm() {
                   )}
                 </div>
               </div>
-              {/* Option B Card */}
-              <div className="bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
+              <div className="bg-gray-200 rounded-lg shadow-lg p-4 sm:p-6">
                 <h3 className="text-2xl font-semibold text-blue-400 mb-4 text-center">
                   Option B
                 </h3>
-                <div className="text-sm text-gray-300">
+                <div className="text-sm text-black">
                   <ReactMarkdown className="mb-2">
                     {String(campaignDetails.hf.text)}
                   </ReactMarkdown>
