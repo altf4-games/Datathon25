@@ -1,8 +1,9 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const fetch = require("node-fetch");
 const cors = require("cors");
-const OpenAI = require("openai");
+const { HfInference } = require("@huggingface/inference"); // Added
 
 // Load environment variables
 dotenv.config();
@@ -11,15 +12,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY,
-  defaultHeaders: {
-    "HTTP-Referer": "<YOUR_SITE_URL>", // Optional. Site URL for rankings on openrouter.ai.
-    "X-Title": "<YOUR_SITE_NAME>", // Optional. Site title for rankings on openrouter.ai.
-  },
-});
+// Initialize Google Generative AI
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+// Initialize Hugging Face Inference client
+const hfClient = new HfInference(process.env.HF); // Added
 
 // Predefined festival table
 const festivals = [
@@ -73,19 +71,13 @@ function generateMarketingPrompt({
 
 // Helper function to generate image using Hugging Face API and return it as a Base64 string
 async function generateImage(description) {
-  const response = await fetch(
-    "https://api-inference.huggingface.co/models/ZB-Tech/Text-to-Image",
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.HF}`,
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify({ inputs: description }),
-    }
-  );
-  const result = await response.blob();
-  const buffer = Buffer.from(await result.arrayBuffer());
+  const image = await hfClient.textToImage({
+    model: "ZB-Tech/Text-to-Image",
+    inputs: description,
+    parameters: { num_inference_steps: 5 },
+    provider: "hf-inference",
+  });
+  const buffer = Buffer.from(await image.arrayBuffer());
   return buffer.toString("base64"); // Convert buffer to Base64 string
 }
 
@@ -142,21 +134,12 @@ app.post("/generate-campaign", async (req, res) => {
       companyName,
       callToAction: callToActionLink,
       promptTemplate,
-      city, // Add missing parameter
     });
 
-    // Generate content with OpenAI
-    const completion = await openai.chat.completions.create({
-      model: "deepseek/deepseek-r1-distill-qwen-1.5b",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
-    });
-    const text = completion.choices[0].message.content;
-    console.log(text);
+    // Generate content with Google Generative AI
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    console.log(result.response.text());
 
     // Generate campaign image as Base64
     const imageDescription = `${product} campaign in ${city} as background and featuring ${

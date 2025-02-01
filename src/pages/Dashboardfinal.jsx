@@ -22,7 +22,7 @@ function TwoColumnForm() {
     // Send data to the backend
     try {
       setIsLoading(true);
-      const response = await fetch("https://cultur-ai-backend.onrender.com/generate-campaign", {
+      const response = await fetch("http://localhost:3000/generate-campaign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
