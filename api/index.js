@@ -211,6 +211,7 @@ async function generateCampaign(data) {
   }
 
   const festival = getCurrentFestival();
+  // Build prompt for Gemini
   const prompt = generateMarketingPrompt({
     product,
     targetAudience,
@@ -222,6 +223,7 @@ async function generateCampaign(data) {
     city,
   });
 
+  // Ensure calling Gemini generation with valid prompt
   const result = await model.generateContent(prompt);
   const text = result.response.text();
 
@@ -306,6 +308,85 @@ app.post("/generate-campaign-hf", async (req, res) => {
   } catch (error) {
     console.error("Error generating campaign (HF):", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+app.post("/generate-campaign-plans", async (req, res) => {
+  try {
+    const {
+      companyName,
+      product,
+      targetAudience,
+      maxBudget,
+      userPrompt,
+      callToActionLink,
+      campaignDate,
+      city,
+    } = req.body;
+
+    if (
+      !product ||
+      !targetAudience ||
+      !maxBudget ||
+      !userPrompt ||
+      !companyName ||
+      !callToActionLink ||
+      !city
+    ) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Missing required fields." 
+      });
+    }
+
+    const prompt = `Based on the following campaign details:
+Company: ${companyName}
+Product: ${product}
+Target Audience: ${targetAudience}
+Max Budget: ${maxBudget}
+Campaign Details: ${userPrompt}
+Call to Action Link: ${callToActionLink}
+Campaign Date: ${campaignDate || "Not specified"}
+City: ${city}
+
+Generate three distinct campaign plans. For each plan, provide a detailed description and an estimated cost. Sort the plans by increasing cost. Format your answer with:
+Plan 1:
+Description: <detailed description>
+Estimated Cost: <cost>
+
+Plan 2:
+Description: <detailed description>
+Estimated Cost: <cost>
+
+Plan 3:
+Description: <detailed description>
+Estimated Cost: <cost>`;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    
+    // Split and parse plans
+    const plansArray = text.split(/Plan\s*\d+:/)
+      .map(plan => plan.trim())
+      .filter(plan => plan.length > 0);
+    
+    const plans = plansArray.map(plan => {
+      const costMatch = plan.match(/Estimated Cost:\s*([^\n]+)/);
+      const cost = costMatch ? costMatch[1].trim() : "N/A";
+      return { text: plan, cost };
+    });
+
+    res.json({
+      success: true,
+      details: plans
+    });
+
+  } catch (error) {
+    console.error("Error generating campaign plans:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to generate campaign plans" 
+    });
   }
 });
 

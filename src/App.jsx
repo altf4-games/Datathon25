@@ -12,6 +12,7 @@ import Features from './pages/Features';
 import CampaignPage from './pages/Campaigns';
 import Settings from './pages/Settings';
 import MarketingAnalysis from './pages/MarketingAnalysis';
+import Plans from './pages/plans';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
               <Route path="/analytics" element={<MarketingAnalysis />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/reports" element={<CampaignPage />} />
+              <Route path="/plans" element={<Plans />} />
             </Routes>
             
             <Footer />
