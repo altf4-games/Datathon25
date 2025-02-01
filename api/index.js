@@ -7,6 +7,7 @@ const { fal } = require("@fal-ai/client");
 const sharp = require("sharp");
 const { HfInference } = require("@huggingface/inference");
 const { BskyAgent } = require("@atproto/api");
+const TelegramBot = require("node-telegram-bot-api");
 
 dotenv.config();
 
@@ -160,59 +161,65 @@ async function SendPost(txt, image, isBase64 = false) {
   }
 }
 
+async function generateCampaign(data) {
+  const {
+    product,
+    targetAudience,
+    campaignGoal,
+    tone,
+    companyName,
+    callToActionLink,
+    promptTemplate,
+    city,
+  } = data;
+
+  if (
+    !product ||
+    !targetAudience ||
+    !campaignGoal ||
+    !tone ||
+    !companyName ||
+    !callToActionLink ||
+    !city
+  ) {
+    throw new Error("Missing required fields.");
+  }
+
+  const festival = getCurrentFestival();
+  const prompt = generateMarketingPrompt({
+    product,
+    targetAudience,
+    campaignGoal,
+    tone,
+    festival,
+    companyName,
+    callToAction: callToActionLink,
+    promptTemplate,
+    city,
+  });
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+
+  const imageDescription = `${product} campaign in ${city} as background and featuring ${
+    festival || "a general theme"
+  } with a focus on ${targetAudience}. Company: ${companyName}. Tone: ${tone}. ${promptTemplate}`;
+  const imageUrl = await generateImage(imageDescription);
+
+  return {
+    text,
+    imageUrl,
+    bestCampaignTime: getBestCampaignTime(),
+    currentFestival: festival || "None",
+  };
+}
+
 app.post("/generate-campaign", async (req, res) => {
   try {
-    const {
-      product,
-      targetAudience,
-      campaignGoal,
-      tone,
-      companyName,
-      callToActionLink,
-      promptTemplate,
-      city,
-    } = req.body;
-    if (
-      !product ||
-      !targetAudience ||
-      !campaignGoal ||
-      !tone ||
-      !companyName ||
-      !callToActionLink ||
-      !city
-    ) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Missing required fields." });
-    }
-    const festival = getCurrentFestival();
-    const prompt = generateMarketingPrompt({
-      product,
-      targetAudience,
-      campaignGoal,
-      tone,
-      festival,
-      companyName,
-      callToAction: callToActionLink,
-      promptTemplate,
-      city,
-    });
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    const imageUrl = await generateImage(
-      `${product} campaign in ${city} featuring ${
-        festival || "a general theme"
-      }.`
-    );
-    await SendPost(text, imageUrl, false);
+    const campaignDetails = await generateCampaign(req.body);
     res.json({
       success: true,
-      details: {
-        text,
-        imageUrl,
-        bestCampaignTime: getBestCampaignTime(),
-        currentFestival: festival || "None",
-      },
+      details: campaignDetails,
     });
   } catch (error) {
     console.error("Error generating campaign:", error);
@@ -280,4 +287,39 @@ app.post("/generate-campaign-hf", async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log("Server is running on port 3000"));
+// Initialize Telegram Bot
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
+
+// Handle Telegram bot commands
+bot.onText(/\/start/, (msg) => {
+  bot.sendMessage(msg.chat.id, "Welcome to the Marketing Campaign Bot!");
+});
+
+bot.onText(/\/generate_campaign (.+)/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const params = match[1].split(",");
+  const [product, targetAudience, campaignGoal, tone, companyName, callToActionLink, promptTemplate, city] = params;
+
+  try {
+    const campaignDetails = await generateCampaign({
+      product,
+      targetAudience,
+      campaignGoal,
+      tone,
+      companyName,
+      callToActionLink,
+      promptTemplate,
+      city,
+    });
+
+    bot.sendMessage(chatId, `Campaign generated successfully!\n\nText: ${campaignDetails.text}\nImage: ${campaignDetails.imageUrl}`);
+  } catch (error) {
+    console.error("Error generating campaign:", error);
+    bot.sendMessage(chatId, "Error generating campaign. Please try again.");
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
