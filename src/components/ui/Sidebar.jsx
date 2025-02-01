@@ -76,17 +76,17 @@ function Sidebar() {
         </ul>
       </nav>
 
-      <div className="mt-auto flex items-center space-x-2 hover:text-teal-400 transition duration-300">
+      <div className="mt-auto flex items-center space-x-2 text-gray-700 mb-4 hover:text-teal-400 transition duration-300">
         <FaUserCircle className="w-8 h-8" />
         {!isCollapsed && <span className="text-sm">{user ? user.displayName : 'User Name'}</span>}
       </div>
-      <button
+      {/* <button
         onClick={handleLogout}
         className="flex items-center mt-4 space-x-2 text-red-500 hover:text-red-400 transition duration-300"
       >
         <FaSignOutAlt className="w-5 h-5" />
         {!isCollapsed && <span>Logout</span>}
-      </button>
+      </button> */}
 
       {isLoginModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
