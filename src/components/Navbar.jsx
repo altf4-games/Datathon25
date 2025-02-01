@@ -46,7 +46,7 @@ function Navbar() {
           </div>
 
           {/* Menu Items */}
-          <div className="hidden md:flex space-x-8 font-medium">
+          {/* <div className="hidden md:flex space-x-8 font-medium">
             {["Home", "Features", "Pricing", "Contact Us"].map((item) => (
               <button
                 key={item}
@@ -56,7 +56,7 @@ function Navbar() {
                 {item}
               </button>
             ))}
-          </div>
+          </div> */}
 
           <div className="flex items-center space-x-4">
             {user ? (
