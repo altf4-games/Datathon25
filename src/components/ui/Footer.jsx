@@ -31,7 +31,7 @@ function Footer() {
         </p>
         
         <p className="text-center text-gray-500">
-          © 2024 Marketing Platform. All rights reserved.
+          © 2024 AdFlow AI. All rights reserved.
         </p>
       </div>
     </footer>

@@ -28,7 +28,7 @@ function Navbar() {
           }`}
           onClick={handleLogoClick}
         >
-          Marketing Platform
+          AdFlow AI
         </div>
 
         {/* Menu Button (Mobile) */}
