@@ -58,6 +58,7 @@ function Sidebar() {
             { name: 'Dashboard', icon: <FaTachometerAlt className="w-5 h-5" />, route: '/dashboard' },
             { name: 'Analytics', icon: <FaChartLine className="w-5 h-5" />, route: '/analytics' },
             { name: 'Reports', icon: <FaFileAlt className="w-5 h-5" />, route: '/reports' },
+            { name: 'Plans', icon: <FaFileAlt className="w-5 h-5" />, route: '/plans' },
             { name: 'Settings', icon: <FaCog className="w-5 h-5" />, route: '/settings' },
           ].map((item, index) => (
             <li 
