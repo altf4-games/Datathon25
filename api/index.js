@@ -32,7 +32,7 @@ if (fs.existsSync(RECENT_POSTS_FILE)) {
   }
 }
 
-const client = new HfInference(process.env.HF);
+const clientHF = new HfInference(process.env.HF);
 const agent = new BskyAgent({ service: "https://bsky.social" });
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -90,7 +90,7 @@ async function generateImage(description) {
 
 async function generateImageb(description) {
   try {
-    const image = await client.textToImage({
+    const image = await clientHF.textToImage({
       model: "ZB-Tech/Text-to-Image",
       inputs: description,
       parameters: { num_inference_steps: 100 },
@@ -339,9 +339,9 @@ app.post("/generate-campaign-plans", async (req, res) => {
       !callToActionLink ||
       !city
     ) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Missing required fields." 
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields.",
       });
     }
 
@@ -370,13 +370,14 @@ Estimated Cost: <cost>`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    
+
     // Split and parse plans
-    const plansArray = text.split(/Plan\s*\d+:/)
-      .map(plan => plan.trim())
-      .filter(plan => plan.length > 0);
-    
-    const plans = plansArray.map(plan => {
+    const plansArray = text
+      .split(/Plan\s*\d+:/)
+      .map((plan) => plan.trim())
+      .filter((plan) => plan.length > 0);
+
+    const plans = plansArray.map((plan) => {
       const costMatch = plan.match(/Estimated Cost:\s*([^\n]+)/);
       const cost = costMatch ? costMatch[1].trim() : "N/A";
       return { text: plan, cost };
@@ -384,14 +385,13 @@ Estimated Cost: <cost>`;
 
     res.json({
       success: true,
-      details: plans
+      details: plans,
     });
-
   } catch (error) {
     console.error("Error generating campaign plans:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Failed to generate campaign plans" 
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate campaign plans",
     });
   }
 });
@@ -461,7 +461,15 @@ bot.onText(/\/start/, (msg) => {
 bot.onText(/\/generate_campaign (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const params = match[1].split(",");
-  const [product, targetAudience, maxBudget, userPrompt, companyName, callToActionLink, city] = params;
+  const [
+    product,
+    targetAudience,
+    maxBudget,
+    userPrompt,
+    companyName,
+    callToActionLink,
+    city,
+  ] = params;
 
   try {
     // 1. Generate the campaign
