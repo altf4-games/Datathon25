@@ -1,8 +1,8 @@
 [
   {
-    "uri": "at://did:plc:xzdrzft2fvrkjbjy7jdyesil/app.bsky.feed.post/3lh67poyuc62l"
+    "uri": "at://did:plc:xzdrzft2fvrkjbjy7jdyesil/app.bsky.feed.post/3lh6i6i5ywo25"
   },
   {
-    "uri": "at://did:plc:xzdrzft2fvrkjbjy7jdyesil/app.bsky.feed.post/3lh67parbpm2c"
+    "uri": "at://did:plc:xzdrzft2fvrkjbjy7jdyesil/app.bsky.feed.post/3lh6artckvr2e"
   }
 ]

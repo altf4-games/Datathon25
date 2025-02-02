@@ -84,49 +84,51 @@ function Plans() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col p-4 md:p-8 mt-20">
-      <div className="bg-gray-200 ml-10 text-gray-700 p-6 rounded-lg shadow-lg w-full md:w-1/3">
-        <h2 className="text-2xl font-bold mb-4">Campaign Settings</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {[
-            { name: "companyName", placeholder: "Company Name" },
-            { name: "product", placeholder: "Product Name" },
-            { name: "targetAudience", placeholder: "Target Audience" },
-            { name: "maxBudget", placeholder: "Max Budget (₹)", type: "number" },
-          ].map(({ name, placeholder, type = "text" }) => (
+      <div className="flex flex-col md:flex-row gap-8">
+        <div className="bg-gray-200 text-gray-700 p-6 rounded-lg shadow-lg w-full md:w-1/3">
+          <h2 className="text-2xl font-bold mb-4">Campaign Settings</h2>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {[
+              { name: "companyName", placeholder: "Company Name" },
+              { name: "product", placeholder: "Product Name" },
+              { name: "targetAudience", placeholder: "Target Audience" },
+              { name: "maxBudget", placeholder: "Max Budget (₹)", type: "number" },
+            ].map(({ name, placeholder, type = "text" }) => (
+              <Controller
+                key={name}
+                name={name}
+                control={control}
+                defaultValue=""
+                render={({ field }) => (
+                  <input {...field} type={type} placeholder={placeholder} className="w-full p-2 border border-gray-600 rounded-lg" required />
+                )}
+              />
+            ))}
             <Controller
-              key={name}
-              name={name}
+              name="campaignDate"
               control={control}
-              defaultValue=""
+              defaultValue={null}
               render={({ field }) => (
-                <input {...field} type={type} placeholder={placeholder} className="w-full p-2 border border-gray-600 rounded-lg" required />
+                <DatePicker {...field} selected={field.value} onChange={(date) => field.onChange(date)} className="w-full p-2 border border-gray-600 rounded-lg" placeholderText="Select Campaign Date" />
               )}
             />
-          ))}
-          <Controller
-            name="campaignDate"
-            control={control}
-            defaultValue={null}
-            render={({ field }) => (
-              <DatePicker {...field} selected={field.value} onChange={(date) => field.onChange(date)} className="w-full p-2 border border-gray-600 rounded-lg" placeholderText="Select Campaign Date" />
-            )}
-          />
-          <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600" disabled={isLoading}>
-            {isLoading ? "Generating..." : "Generate Campaign Plans"}
-          </button>
-        </form>
-      </div>
-      <div className="w-full md:w-2/3 p-6">
-        {plansData?.length > 0 && (
-          <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4">Generated Campaign Plans</h2>
-            {plansData.map((plan, index) => (
-              <div key={index} className="mb-6 border-b pb-4 last:border-b-0">
-                <ReactMarkdown className="prose max-w-none">{plan.text}</ReactMarkdown>
-              </div>
-            ))}
-          </div>
-        )}
+            <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600" disabled={isLoading}>
+              {isLoading ? "Generating..." : "Generate Campaign Plans"}
+            </button>
+          </form>
+        </div>
+        <div className="w-full md:w-2/3">
+          {plansData?.length > 0 && (
+            <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-bold mb-4">Generated Campaign Plans</h2>
+              {plansData.map((plan, index) => (
+                <div key={index} className="mb-6 border-b pb-4 last:border-b-0">
+                  <ReactMarkdown className="prose max-w-none">{plan.text}</ReactMarkdown>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
