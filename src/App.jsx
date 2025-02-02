@@ -11,7 +11,7 @@ import Features from "./pages/Features";
 import CampaignPage from "./pages/Campaigns";
 import Settings from "./pages/Settings";
 import MarketingAnalysis from "./pages/MarketingAnalysis";
-import Plans from "./pages/Plans";
+import Plans from "./pages/plans";
 import "./App.css";
 
 function App() {
