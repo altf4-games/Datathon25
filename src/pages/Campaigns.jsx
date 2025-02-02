@@ -56,7 +56,8 @@ function CampaignPage() {
             </p>
           </div>
 
-          <div className="p-6">
+          {/* Added fadeIn effect */}
+          <div className="p-6 animate-fadeIn">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {campaigns.map((campaign) => (
                 <div

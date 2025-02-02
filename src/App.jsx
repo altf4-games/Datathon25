@@ -6,7 +6,6 @@ import LandingPage from "./pages/LandingPage";
 import ContactUs from "./pages/ContactUs";
 import Footer from "./components/ui/Footer";
 import Sidebar from "./components/ui/Sidebar";
-import Pricing from "./pages/Pricing";
 import Features from "./pages/Features";
 import CampaignPage from "./pages/Campaigns";
 import Settings from "./pages/Settings";
@@ -24,7 +23,7 @@ function App() {
         <div className="flex flex-col flex-grow bg-white text-gray-900">
           <Navbar />
 
-          <div className="p-4">
+          <div className="p-4 animate-fadeIn">
             <Routes>
               <Route
                 path="/"
@@ -33,9 +32,6 @@ function App() {
                     <LandingPage />
                     <div id="features">
                       <Features />
-                    </div>
-                    <div id="pricing">
-                      <Pricing />
                     </div>
                     <div id="contact-us">
                       <ContactUs />
