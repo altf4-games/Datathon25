@@ -179,10 +179,7 @@ async function SendPost(txt, image, isBase64 = false) {
       recentPosts = recentPosts.slice(0, 2);
     }
     // Post the campaign text and generated image to Twitter.
-    await postTweet(
-      "Catch 'em all!  New Pokemon await!  Adventure starts now! http://pokemon.com",
-      imageBuffer
-    );
+    await postTweet(txt, imageBuffer);
     // Save the updated posts array to file.
     saveRecentPosts();
 
