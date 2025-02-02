@@ -481,7 +481,7 @@ bot.onText(/\/generate_campaign (.+)/, async (msg, match) => {
     // 3. Respond in Telegram
     bot.sendMessage(
       chatId,
-      `Campaign posted to BlueSky!\n\nText: ${campaignDetails.text}`
+      `Campaign posted to BlueSky! and X!\n\nText: ${campaignDetails.text}`
     );
   } catch (error) {
     console.error("Error generating campaign:", error);
