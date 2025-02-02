@@ -10,6 +10,7 @@ const { BskyAgent } = require("@atproto/api");
 const TelegramBot = require("node-telegram-bot-api");
 const fs = require("fs");
 const path = require("path");
+const { postTweet } = require("./twitterbot");
 
 dotenv.config();
 
@@ -177,12 +178,17 @@ async function SendPost(txt, image, isBase64 = false) {
     if (recentPosts.length > 2) {
       recentPosts = recentPosts.slice(0, 2);
     }
+    // Post the campaign text and generated image to Twitter.
+    await postTweet(
+      "Catch 'em all!  New Pokemon await!  Adventure starts now! http://pokemon.com",
+      imageBuffer
+    );
     // Save the updated posts array to file.
     saveRecentPosts();
 
     return post;
   } catch (error) {
-    console.error("Error posting to BlueSky:", error);
+    console.error("Error posting to BlueSky or Twitter:", error);
     throw error;
   }
 }
@@ -211,6 +217,7 @@ async function generateCampaign(data) {
   }
 
   const festival = getCurrentFestival();
+  // Build prompt for Gemini
   const prompt = generateMarketingPrompt({
     product,
     targetAudience,
@@ -222,6 +229,7 @@ async function generateCampaign(data) {
     city,
   });
 
+  // Ensure calling Gemini generation with valid prompt
   const result = await model.generateContent(prompt);
   const text = result.response.text();
 
@@ -309,6 +317,85 @@ app.post("/generate-campaign-hf", async (req, res) => {
   }
 });
 
+app.post("/generate-campaign-plans", async (req, res) => {
+  try {
+    const {
+      companyName,
+      product,
+      targetAudience,
+      maxBudget,
+      userPrompt,
+      callToActionLink,
+      campaignDate,
+      city,
+    } = req.body;
+
+    if (
+      !product ||
+      !targetAudience ||
+      !maxBudget ||
+      !userPrompt ||
+      !companyName ||
+      !callToActionLink ||
+      !city
+    ) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Missing required fields." 
+      });
+    }
+
+    const prompt = `Based on the following campaign details:
+Company: ${companyName}
+Product: ${product}
+Target Audience: ${targetAudience}
+Max Budget: ${maxBudget}
+Campaign Details: ${userPrompt}
+Call to Action Link: ${callToActionLink}
+Campaign Date: ${campaignDate || "Not specified"}
+City: ${city}
+
+Generate three distinct campaign plans. For each plan, provide a detailed description and an estimated cost. Sort the plans by increasing cost. Format your answer with:
+Plan 1:
+Description: <detailed description>
+Estimated Cost: <cost>
+
+Plan 2:
+Description: <detailed description>
+Estimated Cost: <cost>
+
+Plan 3:
+Description: <detailed description>
+Estimated Cost: <cost>`;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    
+    // Split and parse plans
+    const plansArray = text.split(/Plan\s*\d+:/)
+      .map(plan => plan.trim())
+      .filter(plan => plan.length > 0);
+    
+    const plans = plansArray.map(plan => {
+      const costMatch = plan.match(/Estimated Cost:\s*([^\n]+)/);
+      const cost = costMatch ? costMatch[1].trim() : "N/A";
+      return { text: plan, cost };
+    });
+
+    res.json({
+      success: true,
+      details: plans
+    });
+
+  } catch (error) {
+    console.error("Error generating campaign plans:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to generate campaign plans" 
+    });
+  }
+});
+
 // NEW ENDPOINT: Retrieve the most recent 2 posts with replies and sentiment analysis on each reply.
 app.get("/recent-posts", async (req, res) => {
   try {
@@ -374,17 +461,10 @@ bot.onText(/\/start/, (msg) => {
 bot.onText(/\/generate_campaign (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const params = match[1].split(",");
-  const [
-    product,
-    targetAudience,
-    maxBudget,
-    userPrompt,
-    companyName,
-    callToActionLink,
-    city,
-  ] = params.map((param) => param.trim());
+  const [product, targetAudience, maxBudget, userPrompt, companyName, callToActionLink, city] = params;
 
   try {
+    // 1. Generate the campaign
     const campaignDetails = await generateCampaign({
       product,
       targetAudience,
@@ -395,9 +475,13 @@ bot.onText(/\/generate_campaign (.+)/, async (msg, match) => {
       city,
     });
 
+    // 2. Post to BlueSky (use imageUrl or buffer depending on your implementation)
+    await SendPost(campaignDetails.text, campaignDetails.imageUrl, false);
+
+    // 3. Respond in Telegram
     bot.sendMessage(
       chatId,
-      `Campaign generated successfully!\n\nText: ${campaignDetails.text}\nImage: ${campaignDetails.imageUrl}`
+      `Campaign posted to BlueSky! and X!\n\nText: ${campaignDetails.text}`
     );
   } catch (error) {
     console.error("Error generating campaign:", error);

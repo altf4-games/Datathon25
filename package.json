@@ -13,6 +13,7 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
+    "@google/generative-ai": "^0.21.0",
     "@mui/material": "^6.1.5",
     "@splinetool/react-spline": "^4.0.0",
     "css": "^3.0.0",
