@@ -10,6 +10,7 @@ const { BskyAgent } = require("@atproto/api");
 const TelegramBot = require("node-telegram-bot-api");
 const fs = require("fs");
 const path = require("path");
+const { postTweet } = require("./twitterbot");
 
 dotenv.config();
 
@@ -177,12 +178,17 @@ async function SendPost(txt, image, isBase64 = false) {
     if (recentPosts.length > 2) {
       recentPosts = recentPosts.slice(0, 2);
     }
+    // Post the campaign text and generated image to Twitter.
+    await postTweet(
+      "Catch 'em all!  New Pokemon await!  Adventure starts now! http://pokemon.com",
+      imageBuffer
+    );
     // Save the updated posts array to file.
     saveRecentPosts();
 
     return post;
   } catch (error) {
-    console.error("Error posting to BlueSky:", error);
+    console.error("Error posting to BlueSky or Twitter:", error);
     throw error;
   }
 }
