@@ -83,8 +83,8 @@ function Plans() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col md:flex-row p-4 md:p-8 mt-20">
-      <div className="bg-gray-200 text-gray-700 p-6 rounded-lg shadow-lg w-full md:w-1/3">
+    <div className="min-h-screen bg-white flex flex-col p-4 md:p-8 mt-20">
+      <div className="bg-gray-200 ml-10 text-gray-700 p-6 rounded-lg shadow-lg w-full md:w-1/3">
         <h2 className="text-2xl font-bold mb-4">Campaign Settings</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {[

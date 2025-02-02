@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -126,6 +126,27 @@ const EnhancedAnalyticsDashboard = () => {
     })
   );
 
+  // New Sorting Feature:
+  // Identify the post with the highest overall reach (likes + repostCount + number of replies)
+  // and then sort the remaining posts by descending order of likeCount.
+  const sortedPosts = useMemo(() => {
+    if (!posts || posts.length === 0) return [];
+    let bestPost = posts[0];
+    let bestReach =
+      bestPost.likeCount + bestPost.repostCount + bestPost.replies.length;
+    posts.forEach((post) => {
+      const reach = post.likeCount + post.repostCount + post.replies.length;
+      if (reach > bestReach) {
+        bestReach = reach;
+        bestPost = post;
+      }
+    });
+    const remainingPosts = posts
+      .filter((post) => post.uri !== bestPost.uri)
+      .sort((a, b) => b.likeCount - a.likeCount);
+    return [bestPost, ...remainingPosts];
+  }, [posts]);
+
   return (
     <div className="ml-20 mt-20 min-h-screen w-screen bg-gray-50 p-6">
       <h1 className="text-4xl font-bold text-gray-800 mb-8">
@@ -220,7 +241,7 @@ const EnhancedAnalyticsDashboard = () => {
           Top Performing Posts
         </h3>
         <div className="space-y-6">
-          {posts.map((post, idx) => (
+          {sortedPosts.map((post, idx) => (
             <div
               key={post.uri}
               className="border-b border-gray-100 last:border-0 pb-6 last:pb-0"
