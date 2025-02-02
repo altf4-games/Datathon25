@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
-import { FaTachometerAlt, FaChartLine, FaFileAlt, FaCog, FaUserCircle, FaSignOutAlt, FaUserSecret } from 'react-icons/fa';
+import { FaTachometerAlt, FaChartLine, FaFileAlt, FaCog, FaUserCircle, FaSignOutAlt, FaUserSecret, FaEnvelope } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 
 function Sidebar() {
@@ -57,7 +57,8 @@ function Sidebar() {
           {[
             { name: 'Dashboard', icon: <FaTachometerAlt className="w-5 h-5" />, route: '/dashboard' },
             { name: 'Analytics', icon: <FaChartLine className="w-5 h-5" />, route: '/analytics' },
-            { name: 'Reports', icon: <FaFileAlt className="w-5 h-5" />, route: '/reports' },
+            { name: 'Reports', icon: <FaEnvelope className="w-5 h-5" />, route: '/reports' },
+            { name: 'Plans', icon: <FaFileAlt className="w-5 h-5" />, route: '/plans' },
             { name: 'Settings', icon: <FaCog className="w-5 h-5" />, route: '/settings' },
           ].map((item, index) => (
             <li 

@@ -17,14 +17,14 @@ function Navbar() {
   };
 
   return (
-    <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[80%] bg-white bg-opacity-20 backdrop-blur-lg border border-white/20 shadow-2xl shadow-black/10 
-      rounded-2xl px-6 py-3 transition-all duration-500 ease-in-out z-50">
-      
+    <nav
+      className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[80%] bg-white bg-opacity-20 backdrop-blur-lg border border-white/20 shadow-2xl shadow-black/10 
+      rounded-2xl px-6 py-3 transition-all duration-500 ease-in-out z-50"
+    >
       <div className="flex justify-between items-center">
         {/* Logo */}
         <div
-          className={`text-3xl font-extrabold text-teal-400 tracking-wide cursor-pointer hover:scale-105 transition-transform duration-300 ${
-            isSpinning ? "animate-spin" : ""
+          className={`text-3xl font-extrabold text-teal-400 tracking-wide cursor-pointer hover:text-teal-600 transition-colors duration-300
           }`}
           onClick={handleLogoClick}
         >
@@ -46,7 +46,7 @@ function Navbar() {
               onClick={() => setIsLoginModalOpen(true)}
               className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-indigo-600 hover:to-blue-500 
                 text-white px-5 py-2 rounded-full font-bold shadow-lg transform transition-all 
-                duration-300 hover:scale-110"
+                duration-300"
             >
               Login / Sign Up
             </button>
@@ -56,8 +56,10 @@ function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden mt-4 flex flex-col space-y-3 bg-white bg-opacity-20 backdrop-blur-lg border 
-          border-white/20 shadow-lg rounded-xl p-4 text-center transition-all duration-500">
+        <div
+          className="md:hidden mt-4 flex flex-col space-y-3 bg-white bg-opacity-20 backdrop-blur-lg border 
+          border-white/20 shadow-lg rounded-xl p-4 text-center transition-all duration-500"
+        >
           {!user && (
             <button
               onClick={() => setIsLoginModalOpen(true)}
